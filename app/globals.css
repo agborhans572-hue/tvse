@@ -45,8 +45,8 @@ img { object-fit: cover; }
 .logo-word { font-size: 33px; line-height: 1; }
 .logo small { margin-left: 8px; padding-left: 8px; border-left: 1px solid #c5c7d4; color: var(--orange); font-size: 9px; letter-spacing: .18em; }
 .logo-with-3d { min-width: 220px; gap: 12px; letter-spacing: normal; perspective: 700px; }
-.header-logo-mark { position: relative; flex: 0 0 82px; width: 82px; height: 76px; display: block; transform-style: preserve-3d; filter: drop-shadow(0 7px 8px rgba(17,43,99,.17)); }
-.header-logo-mark img { object-fit: contain; }
+.header-logo-mark { position: relative; flex: 0 0 82px; width: 82px; height: 76px; display: block; transform-style: preserve-3d; }
+.header-logo-mark img { object-fit: contain; background: transparent; mix-blend-mode: multiply; }
 .header-logo-type { display: grid; align-content: center; gap: 4px; line-height: 1; }
 .header-logo-type strong { color: #112768; font-size: 29px; font-weight: 900; letter-spacing: -.065em; }
 .logo .header-logo-type small { margin: 0; padding: 0; border: 0; color: #0065cf; font-size: 8px; font-weight: 850; letter-spacing: .24em; }

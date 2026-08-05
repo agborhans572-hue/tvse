@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 
 const services = [
@@ -46,6 +47,7 @@ const stories = [
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   return (
     <main id="top">
@@ -114,6 +116,32 @@ export default function Home() {
             <small>6 nights · beach & culture</small>
           </div>
         </div>
+        <motion.div
+          className="motion-plane hero-plane"
+          aria-hidden="true"
+          initial={false}
+          animate={
+            reduceMotion
+              ? { x: "76vw", y: -120, rotate: 5, opacity: 0.72 }
+              : {
+                  x: ["-14vw", "28vw", "72vw", "108vw"],
+                  y: [120, 35, -50, -190],
+                  rotate: [-16, -8, 2, 13],
+                  scale: [0.72, 1, 1.12, 0.88],
+                  opacity: [0, 1, 1, 0],
+                }
+          }
+          transition={{
+            duration: 7.2,
+            times: [0, 0.44, 0.86, 1],
+            ease: [0.45, 0, 0.2, 1],
+            repeat: reduceMotion ? 0 : Infinity,
+            repeatDelay: 2.1,
+          }}
+        >
+          <span className="flight-trail" />
+          <span className="plane-glyph">✈</span>
+        </motion.div>
       </section>
 
       <section className="trust-band" aria-label="TVSE at a glance">
@@ -196,7 +224,36 @@ export default function Home() {
         </div>
         <div className="platform-art" aria-hidden="true">
           <i /><i /><i /><i />
-          <div className="route-line"><b>NAIROBI</b><span>✈</span><b>ANYWHERE</b></div>
+          <motion.div
+            className="platform-plane"
+            initial={{ x: -90, y: 150, rotate: -18, opacity: 0 }}
+            whileInView={
+              reduceMotion
+                ? { x: 235, y: -25, rotate: 8, opacity: 0.7 }
+                : {
+                    x: [-90, 70, 350],
+                    y: [150, 25, -115],
+                    rotate: [-18, -2, 18],
+                    scale: [0.78, 1.15, 0.9],
+                    opacity: [0, 1, 0],
+                  }
+            }
+            viewport={{ amount: 0.25 }}
+            transition={{ duration: 5.6, ease: "easeInOut", repeat: reduceMotion ? 0 : Infinity, repeatDelay: 1.2 }}
+          >
+            <span className="flight-trail light-trail" />
+            <span className="plane-glyph">✈</span>
+          </motion.div>
+          <div className="route-line">
+            <b>NAIROBI</b>
+            <span className="route-track" />
+            <motion.span
+              className="route-plane"
+              animate={reduceMotion ? { x: "300%", rotate: 7 } : { x: ["0%", "650%", "0%"], rotate: [7, -5, 7] }}
+              transition={{ duration: 4.4, ease: "easeInOut", repeat: reduceMotion ? 0 : Infinity }}
+            >✈</motion.span>
+            <b>ANYWHERE</b>
+          </div>
         </div>
       </section>
 
@@ -233,6 +290,27 @@ export default function Home() {
           <a href="#contact"><span>04</span>Business travel <b>→</b></a>
         </div>
         <div className="specialist-path" aria-hidden="true"><i /><i /><i /></div>
+        <motion.div
+          className="motion-plane specialist-plane"
+          aria-hidden="true"
+          initial={{ x: -210, y: 150, rotate: -25, opacity: 0 }}
+          whileInView={
+            reduceMotion
+              ? { x: 250, y: -145, rotate: 18, opacity: 0.72 }
+              : {
+                  x: [-210, -10, 185, 390],
+                  y: [150, 42, -72, -210],
+                  rotate: [-25, -9, 6, 24],
+                  scale: [0.78, 1, 1.15, 0.82],
+                  opacity: [0, 1, 1, 0],
+                }
+          }
+          viewport={{ amount: 0.28 }}
+          transition={{ duration: 5.9, times: [0, 0.42, 0.84, 1], ease: "easeInOut", repeat: reduceMotion ? 0 : Infinity, repeatDelay: 1.5 }}
+        >
+          <span className="flight-trail green-trail" />
+          <span className="plane-glyph">✈</span>
+        </motion.div>
       </section>
 
       <section className="numbers shell section">

@@ -17,13 +17,13 @@ export const metadata: Metadata = {
     description:
       "Handpicked stays, seamless support and journeys designed around you.",
     type: "website",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "TVSE Travel" }],
+    images: [{ url: "/og-motion.png", width: 1200, height: 630, alt: "TVSE Travel airplane journey" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "TVSE Travel | Remarkable journeys, made personal",
     description: "Handpicked stays, seamless support and journeys designed around you.",
-    images: ["/og.png"],
+    images: ["/og-motion.png"],
   },
 };
 

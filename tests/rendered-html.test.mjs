@@ -19,10 +19,10 @@ test("server-renders the TVSE travel experience", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>TVSE Travel \| Journeys worth remembering<\/title>/i);
-  assert.match(html, /Go somewhere/);
-  assert.match(html, /unforgettable/);
+  assert.match(html, /<title>TVSE Travel \| Remarkable journeys, made personal<\/title>/i);
+  assert.match(html, /Remarkable journeys/);
+  assert.match(html, /Made personal/);
   assert.match(html, /Maasai Mara/);
-  assert.match(html, /Let(?:&#x27;|’)s make your/);
+  assert.match(html, /Let(?:&#x27;|')s go somewhere/);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|Your site is taking shape/i);
 });

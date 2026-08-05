@@ -52,12 +52,18 @@ export default function Home() {
   return (
     <main id="top">
       <header className="site-header shell">
-        <a className="logo" href="#top" aria-label="TVSE Travel home">
-          <span className="logo-word">TVSE</span>
-          <span className="logo-dots" aria-hidden="true">
-            <i /><i /><i /><i />
+        <a className="logo logo-with-3d" href="#top" aria-label="TVSE Travel home">
+          <motion.span
+            className="header-logo-mark"
+            whileHover={reduceMotion ? undefined : { scale: 1.08, rotateX: -7, rotateY: 10, y: -2 }}
+            transition={{ type: "spring", stiffness: 260, damping: 18 }}
+          >
+            <Image src="/tvse-3d-logo.png" alt="" fill unoptimized priority sizes="82px" />
+          </motion.span>
+          <span className="header-logo-type">
+            <strong>TVSE</strong>
+            <small>TRAVEL</small>
           </span>
-          <small>TRAVEL</small>
         </a>
 
         <nav className={menuOpen ? "main-nav is-open" : "main-nav"} aria-label="Main navigation">

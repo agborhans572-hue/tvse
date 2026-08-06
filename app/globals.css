@@ -291,7 +291,8 @@ img { object-fit: cover; }
 .footer-columns { position: relative; z-index: 2; display: grid; grid-template-columns: 1.35fr repeat(3, 1fr); gap: 75px; margin-top: 95px; }
 .footer-about p { max-width: 270px; margin: 28px 0; font-size: 13px; line-height: 1.65; }
 .footer-logo { color: #fff; }
-.footer-logo small { color: #fff; border-left-color: rgba(255,255,255,.5); }
+.footer-logo .header-logo-mark img { mix-blend-mode: multiply; }
+.footer-logo .header-logo-type strong, .footer-logo .header-logo-type small { color: #fff; }
 .socials { display: flex; gap: 10px; }
 .socials a { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.55); border-radius: 50%; font-size: 12px; font-weight: 800; }
 .footer-columns > div:not(.footer-about) { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }

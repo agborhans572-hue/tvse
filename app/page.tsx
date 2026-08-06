@@ -336,8 +336,18 @@ export default function Home() {
         </div>
         <div className="footer-columns shell">
           <div className="footer-about">
-            <a className="logo footer-logo" href="#top">
-              <span className="logo-word">TVSE</span><small>TRAVEL</small>
+            <a className="logo logo-with-3d footer-logo" href="#top" aria-label="TVSE Travel home">
+              <motion.span
+                className="header-logo-mark footer-logo-mark"
+                whileHover={reduceMotion ? undefined : { scale: 1.08, rotateX: -7, rotateY: 10, y: -2 }}
+                transition={{ type: "spring", stiffness: 260, damping: 18 }}
+              >
+                <Image src="/tvse-3d-logo.png" alt="" fill unoptimized sizes="82px" />
+              </motion.span>
+              <span className="header-logo-type">
+                <strong>TVSE</strong>
+                <small>TRAVEL</small>
+              </span>
             </a>
             <p>People-first travel design for holidays, business trips and unforgettable escapes — from Nairobi to the world.</p>
             <div className="socials"><a href="#contact">in</a><a href="#contact">ig</a><a href="#contact">f</a></div>

@@ -61,18 +61,21 @@ export function SiteHeader() {
 
   return (
     <header className="site-header shell">
-      <Link className="logo logo-with-3d" href="/" aria-label="TVSE Travel home" onClick={closeMenus}>
+      <Link className="logo brand-lockup" href="/" aria-label="TVSE Travel Agency Ltd home" onClick={closeMenus}>
         <motion.span
-          className="header-logo-mark"
+          className="brand-lockup-image"
           whileHover={reduceMotion ? undefined : { scale: 1.08, rotateX: -7, rotateY: 10, y: -2 }}
           transition={{ type: "spring", stiffness: 260, damping: 18 }}
         >
-          <Image src="/tvse-3d-logo.png" alt="" fill unoptimized priority sizes="82px" />
+          <Image
+            src="/tvse-travel-agency-logo.png"
+            alt=""
+            fill
+            unoptimized
+            priority
+            sizes="(max-width: 560px) 146px, (max-width: 1060px) 188px, 240px"
+          />
         </motion.span>
-        <span className="header-logo-type">
-          <strong>TVSE</strong>
-          <small>TRAVEL</small>
-        </span>
       </Link>
 
       <nav className={menuOpen ? "main-nav is-open" : "main-nav"} aria-label="Primary navigation">
@@ -129,18 +132,14 @@ export function SiteFooter() {
       </div>
       <div className="footer-columns shell">
         <div className="footer-about">
-          <Link className="logo logo-with-3d footer-logo" href="/" aria-label="TVSE Travel home">
+          <Link className="logo brand-lockup footer-logo" href="/" aria-label="TVSE Travel Agency Ltd home">
             <motion.span
-              className="header-logo-mark footer-logo-mark"
+              className="brand-lockup-image footer-brand-lockup-image"
               whileHover={reduceMotion ? undefined : { scale: 1.08, rotateX: -7, rotateY: 10, y: -2 }}
               transition={{ type: "spring", stiffness: 260, damping: 18 }}
             >
-              <Image src="/tvse-3d-logo-transparent.png" alt="" fill unoptimized sizes="124px" />
+              <Image src="/tvse-travel-agency-logo.png" alt="" fill unoptimized sizes="280px" />
             </motion.span>
-            <span className="header-logo-type">
-              <strong>TVSE</strong>
-              <small>TRAVEL</small>
-            </span>
           </Link>
           <p>People-first travel design for holidays, business trips and unforgettable escapes - from Nairobi to the world.</p>
           <div className="socials" aria-label="Social media"><Link href="/contact">in</Link><Link href="/contact">ig</Link><Link href="/contact">f</Link></div>

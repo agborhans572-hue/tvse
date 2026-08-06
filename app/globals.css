@@ -46,12 +46,18 @@ img { object-fit: cover; }
 .logo { display: inline-flex; align-items: center; color: #142665; font-weight: 850; letter-spacing: -.06em; }
 .logo-word { font-size: 33px; line-height: 1; }
 .logo small { margin-left: 8px; padding-left: 8px; border-left: 1px solid #c5c7d4; color: var(--orange); font-size: 9px; letter-spacing: .18em; }
-.logo-with-3d { min-width: 220px; gap: 12px; letter-spacing: normal; perspective: 700px; }
-.header-logo-mark { position: relative; flex: 0 0 82px; width: 82px; height: 76px; display: block; transform-style: preserve-3d; }
-.header-logo-mark img { object-fit: contain; background: transparent; mix-blend-mode: multiply; }
-.header-logo-type { display: grid; align-content: center; gap: 4px; line-height: 1; }
-.header-logo-type strong { color: #112768; font-size: 29px; font-weight: 900; letter-spacing: -.065em; }
-.logo .header-logo-type small { margin: 0; padding: 0; border: 0; color: #0065cf; font-size: 8px; font-weight: 850; letter-spacing: .24em; }
+.brand-lockup { min-width: 240px; perspective: 700px; }
+.brand-lockup-image {
+  position: relative;
+  width: 240px;
+  height: 110px;
+  display: block;
+  overflow: hidden;
+  border-radius: 11px;
+  transform-style: preserve-3d;
+  box-shadow: 0 10px 25px rgba(17,43,99,.14);
+}
+.brand-lockup-image img { object-fit: cover; object-position: center; }
 .logo-dots { position: relative; width: 27px; height: 26px; margin-left: 4px; }
 .logo-dots i { position: absolute; display: block; border-radius: 50%; }
 .logo-dots i:nth-child(1) { width: 8px; height: 8px; left: 1px; top: 6px; background: #ff8b00; }
@@ -427,12 +433,8 @@ img { object-fit: cover; }
 .footer-cta p { margin: 16px 0 25px; font-size: 16px; }
 .footer-columns { position: relative; z-index: 2; display: grid; grid-template-columns: 1.35fr repeat(3, 1fr); gap: 75px; margin-top: 95px; }
 .footer-about p { max-width: 270px; margin: 28px 0; font-size: 13px; line-height: 1.65; }
-.footer-logo { min-width: 250px; gap: 16px; color: #fff; }
-.footer-logo .footer-logo-mark { flex: 0 0 124px; width: 124px; height: 118px; }
-.footer-logo .header-logo-type strong { font-size: 34px; }
-.footer-logo .header-logo-type small { font-size: 9px; }
-.footer-logo .header-logo-mark img { mix-blend-mode: normal; }
-.footer-logo .header-logo-type strong, .footer-logo .header-logo-type small { color: #fff; }
+.footer-logo { min-width: 280px; }
+.footer-brand-lockup-image { width: 280px; height: 132px; box-shadow: 0 18px 40px rgba(81,7,35,.22); }
 .socials { display: flex; gap: 10px; }
 .socials a { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.55); border-radius: 50%; font-size: 12px; font-weight: 800; }
 .footer-columns > div:not(.footer-about) { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
@@ -448,9 +450,8 @@ img { object-fit: cover; }
 :focus-visible { outline: 3px solid #00d9c0; outline-offset: 4px; }
 
 @media (max-width: 1060px) {
-  .logo-with-3d { min-width: 184px; gap: 8px; }
-  .header-logo-mark { flex-basis: 66px; width: 66px; height: 62px; }
-  .header-logo-type strong { font-size: 25px; }
+  .brand-lockup { min-width: 188px; }
+  .brand-lockup-image { width: 188px; height: 86px; }
   .main-nav { gap: 23px; }
   .main-nav a, .nav-trigger { font-size: 13px; }
   .hero { grid-template-columns: 53% 47%; }
@@ -538,11 +539,8 @@ img { object-fit: cover; }
 @media (max-width: 560px) {
   .logo-word { font-size: 29px; }
   .logo small { font-size: 8px; }
-  .logo-with-3d { min-width: 0; gap: 7px; }
-  .header-logo-mark { flex-basis: 56px; width: 56px; height: 54px; }
-  .header-logo-type { gap: 3px; }
-  .header-logo-type strong { font-size: 23px; }
-  .logo .header-logo-type small { font-size: 7px; }
+  .brand-lockup { min-width: 146px; }
+  .brand-lockup-image { width: 146px; height: 66px; border-radius: 8px; }
   .main-nav { padding: 13px 20px 24px; }
   .hero { grid-template-rows: auto 350px; }
   .hero-copy { padding-top: 38px; }
@@ -601,8 +599,8 @@ img { object-fit: cover; }
   .subpage-closing { padding: 78px 0; }
   .footer { min-height: 1370px; padding-top: 75px; }
   .footer-columns { grid-template-columns: 1fr; gap: 43px; margin-top: 70px; }
-  .footer-logo .footer-logo-mark { flex-basis: 104px; width: 104px; height: 100px; }
-  .footer-logo .header-logo-type strong { font-size: 31px; }
+  .footer-logo { min-width: 250px; }
+  .footer-brand-lockup-image { width: 250px; height: 118px; }
   .footer-bottom { display: grid; gap: 18px; margin-top: 55px; }
   .footer-bottom div { flex-wrap: wrap; gap: 18px; }
 }

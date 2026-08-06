@@ -342,7 +342,7 @@ export default function Home() {
                 whileHover={reduceMotion ? undefined : { scale: 1.08, rotateX: -7, rotateY: 10, y: -2 }}
                 transition={{ type: "spring", stiffness: 260, damping: 18 }}
               >
-                <Image src="/tvse-3d-logo.png" alt="" fill unoptimized sizes="82px" />
+                <Image src="/tvse-3d-logo-transparent.png" alt="" fill unoptimized sizes="82px" />
               </motion.span>
               <span className="header-logo-type">
                 <strong>TVSE</strong>

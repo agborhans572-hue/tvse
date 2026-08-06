@@ -290,7 +290,10 @@ img { object-fit: cover; }
 .footer-cta p { margin: 16px 0 25px; font-size: 16px; }
 .footer-columns { position: relative; z-index: 2; display: grid; grid-template-columns: 1.35fr repeat(3, 1fr); gap: 75px; margin-top: 95px; }
 .footer-about p { max-width: 270px; margin: 28px 0; font-size: 13px; line-height: 1.65; }
-.footer-logo { color: #fff; }
+.footer-logo { min-width: 250px; gap: 16px; color: #fff; }
+.footer-logo .footer-logo-mark { flex: 0 0 124px; width: 124px; height: 118px; }
+.footer-logo .header-logo-type strong { font-size: 34px; }
+.footer-logo .header-logo-type small { font-size: 9px; }
 .footer-logo .header-logo-mark img { mix-blend-mode: normal; }
 .footer-logo .header-logo-type strong, .footer-logo .header-logo-type small { color: #fff; }
 .socials { display: flex; gap: 10px; }
@@ -416,6 +419,8 @@ img { object-fit: cover; }
   .number-card { min-height: 210px !important; }
   .footer { min-height: 1370px; padding-top: 75px; }
   .footer-columns { grid-template-columns: 1fr; gap: 43px; margin-top: 70px; }
+  .footer-logo .footer-logo-mark { flex-basis: 104px; width: 104px; height: 100px; }
+  .footer-logo .header-logo-type strong { font-size: 31px; }
   .footer-bottom { display: grid; gap: 18px; margin-top: 55px; }
   .footer-bottom div { flex-wrap: wrap; gap: 18px; }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 
@@ -52,7 +53,7 @@ export function SiteHeader() {
 
   return (
     <header className="site-header shell">
-      <a className="logo logo-with-3d" href="/" aria-label="TVSE Travel home" onClick={closeMenus}>
+      <Link className="logo logo-with-3d" href="/" aria-label="TVSE Travel home" onClick={closeMenus}>
         <motion.span
           className="header-logo-mark"
           whileHover={reduceMotion ? undefined : { scale: 1.08, rotateX: -7, rotateY: 10, y: -2 }}
@@ -64,7 +65,7 @@ export function SiteHeader() {
           <strong>TVSE</strong>
           <small>TRAVEL</small>
         </span>
-      </a>
+      </Link>
 
       <nav className={menuOpen ? "main-nav is-open" : "main-nav"} aria-label="Primary navigation">
         {navGroups.map((group) => (
@@ -84,7 +85,7 @@ export function SiteHeader() {
             </button>
             <div className="nav-dropdown">
               {group.links.map(([label, href]) => (
-                <a href={href} key={href} onClick={closeMenus}>{label}</a>
+                <Link href={href} key={href} onClick={closeMenus}>{label}</Link>
               ))}
             </div>
           </div>
@@ -92,8 +93,8 @@ export function SiteHeader() {
       </nav>
 
       <div className="header-actions">
-        <a className="search-link" href="/resources" aria-label="Search TVSE resources">⌕</a>
-        <a className="pill primary compact" href="/contact">Get started</a>
+        <Link className="search-link" href="/resources" aria-label="Search TVSE resources">⌕</Link>
+        <Link className="pill primary compact" href="/contact">Get started</Link>
         <button
           className="menu-toggle"
           type="button"
@@ -116,11 +117,11 @@ export function SiteFooter() {
       <div className="footer-cta shell">
         <h2>Let&apos;s go somewhere.</h2>
         <p>Share the idea. We&apos;ll turn it into a journey.</p>
-        <a className="pill white" href="/contact">Start the conversation <span>→</span></a>
+        <Link className="pill white" href="/contact">Start the conversation <span>→</span></Link>
       </div>
       <div className="footer-columns shell">
         <div className="footer-about">
-          <a className="logo logo-with-3d footer-logo" href="/" aria-label="TVSE Travel home">
+          <Link className="logo logo-with-3d footer-logo" href="/" aria-label="TVSE Travel home">
             <motion.span
               className="header-logo-mark footer-logo-mark"
               whileHover={reduceMotion ? undefined : { scale: 1.08, rotateX: -7, rotateY: 10, y: -2 }}
@@ -132,35 +133,35 @@ export function SiteFooter() {
               <strong>TVSE</strong>
               <small>TRAVEL</small>
             </span>
-          </a>
+          </Link>
           <p>People-first travel design for holidays, business trips and unforgettable escapes - from Nairobi to the world.</p>
-          <div className="socials" aria-label="Social media"><a href="/contact">in</a><a href="/contact">ig</a><a href="/contact">f</a></div>
+          <div className="socials" aria-label="Social media"><Link href="/contact">in</Link><Link href="/contact">ig</Link><Link href="/contact">f</Link></div>
         </div>
         <div>
           <h3>Solutions</h3>
-          <a href="/solutions/booking-trip-management">Booking & trip management</a>
-          <a href="/solutions/meetings-events">Meetings & events</a>
-          <a href="/solutions/consulting">Travel consulting</a>
-          <a href="/solutions/program-payment-insights">Program insights</a>
+          <Link href="/solutions/booking-trip-management">Booking & trip management</Link>
+          <Link href="/solutions/meetings-events">Meetings & events</Link>
+          <Link href="/solutions/consulting">Travel consulting</Link>
+          <Link href="/solutions/program-payment-insights">Program insights</Link>
         </div>
         <div>
           <h3>Technology</h3>
-          <a href="/technology/platform">TVSE platform</a>
-          <a href="/technology/marketplace">Partner marketplace</a>
-          <a href="/technology/apis-data">APIs & data</a>
-          <a href="/resources">Resources</a>
+          <Link href="/technology/platform">TVSE platform</Link>
+          <Link href="/technology/marketplace">Partner marketplace</Link>
+          <Link href="/technology/apis-data">APIs & data</Link>
+          <Link href="/resources">Resources</Link>
         </div>
         <div>
           <h3>Contact</h3>
           <a href="mailto:hello@tvsetravel.com">hello@tvsetravel.com</a>
           <span>Nairobi, Kenya</span>
           <span>Mon-Fri · 8am-6pm</span>
-          <a href="/login/traveler">Traveler portal</a>
+          <Link href="/login/traveler">Traveler portal</Link>
         </div>
       </div>
       <div className="footer-bottom shell">
         <span>© 2026 TVSE Travel Agency Ltd.</span>
-        <div><a href="/resources">Privacy</a><a href="/resources">Terms</a><a href="#top">Back to top ↑</a></div>
+        <div><Link href="/resources">Privacy</Link><Link href="/resources">Terms</Link><a href="#top">Back to top ↑</a></div>
       </div>
       <div className="footer-rings" aria-hidden="true"><i /><i /><i /><i /></div>
     </footer>

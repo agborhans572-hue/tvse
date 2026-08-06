@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
-import { useState } from "react";
+import { SiteFooter, SiteHeader } from "./components/SiteChrome";
 
 const services = [
   {
@@ -46,47 +46,11 @@ const stories = [
 ];
 
 export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const reduceMotion = useReducedMotion();
 
   return (
     <main id="top">
-      <header className="site-header shell">
-        <a className="logo logo-with-3d" href="#top" aria-label="TVSE Travel home">
-          <motion.span
-            className="header-logo-mark"
-            whileHover={reduceMotion ? undefined : { scale: 1.08, rotateX: -7, rotateY: 10, y: -2 }}
-            transition={{ type: "spring", stiffness: 260, damping: 18 }}
-          >
-            <Image src="/tvse-3d-logo.png" alt="" fill unoptimized priority sizes="82px" />
-          </motion.span>
-          <span className="header-logo-type">
-            <strong>TVSE</strong>
-            <small>TRAVEL</small>
-          </span>
-        </a>
-
-        <nav className={menuOpen ? "main-nav is-open" : "main-nav"} aria-label="Main navigation">
-          <a href="#services" onClick={() => setMenuOpen(false)}>Travel solutions <span>⌄</span></a>
-          <a href="#destinations" onClick={() => setMenuOpen(false)}>Destinations <span>⌄</span></a>
-          <a href="#why-tvse" onClick={() => setMenuOpen(false)}>Why TVSE</a>
-          <a href="#stories" onClick={() => setMenuOpen(false)}>Inspiration</a>
-        </nav>
-
-        <div className="header-actions">
-          <a className="search-link" href="#stories" aria-label="Search">⌕</a>
-          <a className="pill primary compact" href="#contact">Plan my trip</a>
-          <button
-            className="menu-toggle"
-            type="button"
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            <span /><span />
-          </button>
-        </div>
-      </header>
+      <SiteHeader />
 
       <section className="hero shell-wide" aria-labelledby="hero-title">
         <div className="hero-copy shell-inset">
@@ -328,37 +292,7 @@ export default function Home() {
         <article className="number-story"><p>Our story is one of curiosity, care and getting every detail right — so you can simply enjoy the journey.</p><a className="pill primary compact" href="#contact">Get to know us <span>→</span></a></article>
       </section>
 
-      <footer className="footer" id="contact">
-        <div className="footer-cta shell">
-          <h2>Let&apos;s go somewhere.</h2>
-          <p>Share the idea. We&apos;ll turn it into a journey.</p>
-          <a className="pill white" href="mailto:hello@tvsetravel.com">Start the conversation <span>→</span></a>
-        </div>
-        <div className="footer-columns shell">
-          <div className="footer-about">
-            <a className="logo logo-with-3d footer-logo" href="#top" aria-label="TVSE Travel home">
-              <motion.span
-                className="header-logo-mark footer-logo-mark"
-                whileHover={reduceMotion ? undefined : { scale: 1.08, rotateX: -7, rotateY: 10, y: -2 }}
-                transition={{ type: "spring", stiffness: 260, damping: 18 }}
-              >
-                <Image src="/tvse-3d-logo-transparent.png" alt="" fill unoptimized sizes="82px" />
-              </motion.span>
-              <span className="header-logo-type">
-                <strong>TVSE</strong>
-                <small>TRAVEL</small>
-              </span>
-            </a>
-            <p>People-first travel design for holidays, business trips and unforgettable escapes — from Nairobi to the world.</p>
-            <div className="socials"><a href="#contact">in</a><a href="#contact">ig</a><a href="#contact">f</a></div>
-          </div>
-          <div><h3>Travel</h3><a href="#services">Flights & stays</a><a href="#services">Tailor-made holidays</a><a href="#services">Safaris</a><a href="#services">Corporate travel</a></div>
-          <div><h3>Explore</h3><a href="#destinations">Destinations</a><a href="#stories">Travel inspiration</a><a href="#why-tvse">Why TVSE</a><a href="#contact">Plan a trip</a></div>
-          <div><h3>Contact</h3><a href="mailto:hello@tvsetravel.com">hello@tvsetravel.com</a><span>Nairobi, Kenya</span><span>Mon–Fri · 8am–6pm</span></div>
-        </div>
-        <div className="footer-bottom shell"><span>© 2026 TVSE Travel Agency Ltd.</span><div><a href="#top">Privacy</a><a href="#top">Terms</a><a href="#top">Back to top ↑</a></div></div>
-        <div className="footer-rings" aria-hidden="true"><i /><i /><i /><i /></div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

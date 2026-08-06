@@ -46,11 +46,11 @@ img { object-fit: cover; }
 .logo { display: inline-flex; align-items: center; color: #142665; font-weight: 850; letter-spacing: -.06em; }
 .logo-word { font-size: 33px; line-height: 1; }
 .logo small { margin-left: 8px; padding-left: 8px; border-left: 1px solid #c5c7d4; color: var(--orange); font-size: 9px; letter-spacing: .18em; }
-.brand-lockup { min-width: 240px; perspective: 700px; }
+.brand-lockup { min-width: 320px; perspective: 700px; }
 .brand-lockup-image {
   position: relative;
-  width: 240px;
-  height: 110px;
+  width: 320px;
+  height: 128px;
   display: block;
   overflow: hidden;
   border-radius: 11px;
@@ -433,8 +433,8 @@ img { object-fit: cover; }
 .footer-cta p { margin: 16px 0 25px; font-size: 16px; }
 .footer-columns { position: relative; z-index: 2; display: grid; grid-template-columns: 1.35fr repeat(3, 1fr); gap: 75px; margin-top: 95px; }
 .footer-about p { max-width: 270px; margin: 28px 0; font-size: 13px; line-height: 1.65; }
-.footer-logo { min-width: 280px; }
-.footer-brand-lockup-image { width: 280px; height: 132px; box-shadow: 0 18px 40px rgba(81,7,35,.22); }
+.footer-logo { min-width: 300px; }
+.footer-brand-lockup-image { width: 300px; height: 138px; box-shadow: 0 18px 40px rgba(81,7,35,.22); }
 .socials { display: flex; gap: 10px; }
 .socials a { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.55); border-radius: 50%; font-size: 12px; font-weight: 800; }
 .footer-columns > div:not(.footer-about) { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
@@ -450,8 +450,8 @@ img { object-fit: cover; }
 :focus-visible { outline: 3px solid #00d9c0; outline-offset: 4px; }
 
 @media (max-width: 1060px) {
-  .brand-lockup { min-width: 188px; }
-  .brand-lockup-image { width: 188px; height: 86px; }
+  .brand-lockup { min-width: 235px; }
+  .brand-lockup-image { width: 235px; height: 100px; }
   .main-nav { gap: 23px; }
   .main-nav a, .nav-trigger { font-size: 13px; }
   .hero { grid-template-columns: 53% 47%; }
@@ -470,6 +470,10 @@ img { object-fit: cover; }
   .shell-inset { padding-left: 24px; }
   .section { padding-block: 82px; }
   .site-header { height: 92px; }
+  .brand-lockup { min-width: 198px; }
+  .brand-lockup-image { width: 198px; height: 84px; }
+  .footer-logo { min-width: 280px; }
+  .footer-brand-lockup-image { width: 280px; height: 128px; }
   .main-nav {
     position: absolute;
     z-index: 20;
@@ -539,8 +543,8 @@ img { object-fit: cover; }
 @media (max-width: 560px) {
   .logo-word { font-size: 29px; }
   .logo small { font-size: 8px; }
-  .brand-lockup { min-width: 146px; }
-  .brand-lockup-image { width: 146px; height: 66px; border-radius: 8px; }
+  .brand-lockup { min-width: 168px; }
+  .brand-lockup-image { width: 168px; height: 72px; border-radius: 8px; }
   .main-nav { padding: 13px 20px 24px; }
   .hero { grid-template-rows: auto 350px; }
   .hero-copy { padding-top: 38px; }
@@ -599,8 +603,8 @@ img { object-fit: cover; }
   .subpage-closing { padding: 78px 0; }
   .footer { min-height: 1370px; padding-top: 75px; }
   .footer-columns { grid-template-columns: 1fr; gap: 43px; margin-top: 70px; }
-  .footer-logo { min-width: 250px; }
-  .footer-brand-lockup-image { width: 250px; height: 118px; }
+  .footer-logo { min-width: 280px; }
+  .footer-brand-lockup-image { width: 280px; height: 128px; }
   .footer-bottom { display: grid; gap: 18px; margin-top: 55px; }
   .footer-bottom div { flex-wrap: wrap; gap: 18px; }
 }

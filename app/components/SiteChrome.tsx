@@ -68,12 +68,12 @@ export function SiteHeader() {
           transition={{ type: "spring", stiffness: 260, damping: 18 }}
         >
           <Image
-            src="/tvse-travel-agency-logo.png"
+            src="/tvse-travel-agency-ltd-logo-2026.png"
             alt=""
             fill
             unoptimized
             priority
-            sizes="(max-width: 560px) 146px, (max-width: 1060px) 188px, 240px"
+            sizes="(max-width: 560px) 168px, (max-width: 820px) 198px, (max-width: 1060px) 235px, 320px"
           />
         </motion.span>
       </Link>
@@ -138,7 +138,7 @@ export function SiteFooter() {
               whileHover={reduceMotion ? undefined : { scale: 1.08, rotateX: -7, rotateY: 10, y: -2 }}
               transition={{ type: "spring", stiffness: 260, damping: 18 }}
             >
-              <Image src="/tvse-travel-agency-logo.png" alt="" fill unoptimized sizes="280px" />
+              <Image src="/tvse-travel-agency-ltd-logo-2026.png" alt="" fill unoptimized sizes="300px" />
             </motion.span>
           </Link>
           <p>People-first travel design for holidays, business trips and unforgettable escapes - from Nairobi to the world.</p>

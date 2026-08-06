@@ -1,0 +1,4 @@
+import Link from "next/link";
+import { SiteFooter, SiteHeader } from "./SiteChrome";
+
+export function LegalPage({ title, updated, sections }: { title: string; updated: string; sections: readonly (readonly [string,string])[] }) { return <main id="top" className="legal-page"><SiteHeader /><header className="shell"><p className="campaign-kicker">TVSE TRAVEL</p><h1>{title}</h1><span>Last updated {updated}</span></header><article className="shell legal-copy">{sections.map(([heading,body])=><section key={heading}><h2>{heading}</h2><p>{body}</p></section>)}<aside>This page is a clear operational summary and should be reviewed by TVSE’s legal adviser before regulated production use.</aside><Link className="pill primary" href="/contact">Ask a question <span>→</span></Link></article><SiteFooter /></main>; }

@@ -1,100 +1,44 @@
-# vinext-starter
+# TVSE Super Travel Agency
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+TVSE is a concierge travel platform running on vinext and Cloudflare Workers. It combines the public TVSE marketing experience with destination and package discovery, multi-step travel requests, protected traveler/company/partner workspaces, and a complete staff operations console.
 
-## Prerequisites
+## Platform capabilities
 
-- Node.js `>=22.13.0`
+- 12 seeded destinations and eight editable travel packages
+- Request → approval → versioned quote → booking → itinerary → invoice → payment record workflow
+- Email magic-link sessions for travelers, corporate users and partners
+- Sign in with ChatGPT for TVSE staff, with owner, administrator, agent, finance and content permissions
+- Private PDF documents and uploads in R2, with ownership checks and a 10 MB allowlist
+- D1-backed CRM, content, finance, support, notifications and audit history
+- Resend-compatible transactional email outbox and idempotent webhooks
+- KES and USD minor-unit accounting with immutable exchange-rate snapshots
 
-## Quick Start
+## Local development
+
+Use Node.js 22.13 or newer.
 
 ```bash
 npm install
 npm run dev
-npm run build
+npm test
 ```
 
-This starter does not use `wrangler.jsonc`.
+Copy `.env.example` to an ignored local environment file when configuring email. Without a Resend key, messages remain safely visible in the staff notification outbox.
 
-## Included Shape
+## Data and hosting
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+`.openai/hosting.json` declares the logical `DB` D1 binding and `UPLOADS` R2 binding. The generated migration in `drizzle/` creates the complete operational schema and seeds public catalog content only.
 
-## Workspace Auth Headers
+Required production settings:
 
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
+- `APP_BASE_URL`
+- `TVSE_ADMIN_EMAILS`
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL`
+- `RESEND_WEBHOOK_SECRET`
 
-The user ID is stable for the same user on the same Site and different across Sites. Email and name are intended for display or contact purposes.
+Generate a new migration after schema changes with `npm run db:generate`. Money is always stored as integer minor units; historical quote and invoice exchange rates must never be recalculated.
 
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
+## Authentication model
 
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
-```
-
-## Optional Dispatch-Owned ChatGPT Sign-In
-
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
-
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
-
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+External users receive single-use 15-minute email links and 30-day opaque sessions. TVSE staff use the platform sign-in flow. Every operational handler repeats role and ownership checks on the server; hiding a button is never treated as authorization.

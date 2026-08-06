@@ -9,10 +9,14 @@ const navGroups = [
   {
     label: "Solutions",
     links: [
+      ["Destinations", "/destinations"],
+      ["Travel packages", "/packages"],
+      ["Plan a trip", "/plan-a-trip"],
       ["Booking & trip management", "/solutions/booking-trip-management"],
       ["Program & payment insights", "/solutions/program-payment-insights"],
       ["Meetings & events", "/solutions/meetings-events"],
       ["Consulting", "/solutions/consulting"],
+      ["Corporate travel", "/corporate"],
     ],
   },
   {
@@ -29,6 +33,9 @@ const navGroups = [
       ["All resources", "/resources"],
       ["Blog", "/resources/blog"],
       ["How-to guides", "/resources/guides"],
+      ["About TVSE", "/about"],
+      ["FAQs", "/faq"],
+      ["Traveler support", "/support"],
     ],
   },
   {
@@ -37,6 +44,7 @@ const navGroups = [
       ["Traveler portal", "/login/traveler"],
       ["Business account", "/login/business"],
       ["Partner connect", "/login/partner"],
+      ["TVSE staff", "/staff"],
     ],
   },
 ] as const;
@@ -94,7 +102,7 @@ export function SiteHeader() {
 
       <div className="header-actions">
         <Link className="search-link" href="/resources" aria-label="Search TVSE resources">⌕</Link>
-        <Link className="pill primary compact" href="/contact">Get started</Link>
+        <Link className="pill primary compact" href="/plan-a-trip">Get started</Link>
         <button
           className="menu-toggle"
           type="button"
@@ -117,7 +125,7 @@ export function SiteFooter() {
       <div className="footer-cta shell">
         <h2>Let&apos;s go somewhere.</h2>
         <p>Share the idea. We&apos;ll turn it into a journey.</p>
-        <Link className="pill white" href="/contact">Start the conversation <span>→</span></Link>
+        <Link className="pill white" href="/plan-a-trip">Start the conversation <span>→</span></Link>
       </div>
       <div className="footer-columns shell">
         <div className="footer-about">
@@ -143,6 +151,8 @@ export function SiteFooter() {
           <Link href="/solutions/meetings-events">Meetings & events</Link>
           <Link href="/solutions/consulting">Travel consulting</Link>
           <Link href="/solutions/program-payment-insights">Program insights</Link>
+          <Link href="/destinations">Destinations</Link>
+          <Link href="/packages">Travel packages</Link>
         </div>
         <div>
           <h3>Technology</h3>
@@ -150,6 +160,8 @@ export function SiteFooter() {
           <Link href="/technology/marketplace">Partner marketplace</Link>
           <Link href="/technology/apis-data">APIs & data</Link>
           <Link href="/resources">Resources</Link>
+          <Link href="/about">About TVSE</Link>
+          <Link href="/faq">FAQs</Link>
         </div>
         <div>
           <h3>Contact</h3>
@@ -157,11 +169,12 @@ export function SiteFooter() {
           <span>Nairobi, Kenya</span>
           <span>Mon-Fri · 8am-6pm</span>
           <Link href="/login/traveler">Traveler portal</Link>
+          <Link href="/support">Traveler support</Link>
         </div>
       </div>
       <div className="footer-bottom shell">
         <span>© 2026 TVSE Travel Agency Ltd.</span>
-        <div><Link href="/resources">Privacy</Link><Link href="/resources">Terms</Link><a href="#top">Back to top ↑</a></div>
+        <div><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link><a href="#top">Back to top ↑</a></div>
       </div>
       <div className="footer-rings" aria-hidden="true"><i /><i /><i /><i /></div>
     </footer>

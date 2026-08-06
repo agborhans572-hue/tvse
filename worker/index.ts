@@ -1,10 +1,12 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { installRuntimeEnv, type TvseRuntimeEnv } from "../lib/runtime";
 
-interface Env {
+interface Env extends TvseRuntimeEnv {
   ASSETS: Fetcher;
   DB: D1Database;
+  UPLOADS: R2Bucket;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -27,6 +29,7 @@ interface ExecutionContext {
 
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    installRuntimeEnv(env);
     const url = new URL(request.url);
 
     if (url.pathname === "/_vinext/image") {

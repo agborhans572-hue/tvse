@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { SiteFooter, SiteHeader } from "./components/SiteChrome";
 
@@ -9,21 +10,25 @@ const services = [
     title: "Flights & stays",
     text: "Handpicked routes and stays, coordinated from takeoff to check-in.",
     image: "/cape-town.jpg",
+    href: "/solutions/booking-trip-management",
   },
   {
     title: "Tailor-made holidays",
     text: "One-of-a-kind trips shaped around your pace, people and priorities.",
     image: "/santorini.jpg",
+    href: "/packages",
   },
   {
     title: "Safaris & escapes",
     text: "Wild places, trusted hosts and the moments you will talk about for years.",
     image: "/maasai-mara.jpg",
+    href: "/destinations/maasai-mara",
   },
   {
     title: "Corporate travel",
     text: "Responsive travel support that keeps your people and plans moving.",
     image: "/bali.jpg",
+    href: "/corporate",
   },
 ];
 
@@ -60,8 +65,8 @@ export default function Home() {
             From first idea to final touchdown, we design seamless trips that feel unmistakably yours.
           </p>
           <div className="button-row">
-            <a className="pill primary" href="#destinations">Explore escapes <span>→</span></a>
-            <a className="pill outline" href="#contact">Get started <span>→</span></a>
+            <Link className="pill primary" href="/destinations">Explore escapes <span>→</span></Link>
+            <Link className="pill outline" href="/plan-a-trip">Get started <span>→</span></Link>
           </div>
         </div>
 
@@ -141,7 +146,7 @@ export default function Home() {
               <div className="service-copy">
                 <h3>{service.title}</h3>
                 <p>{service.text}</p>
-                <a href="#contact" aria-label={`Learn more about ${service.title}`}>Learn more <span>→</span></a>
+                <Link href={service.href} aria-label={`Learn more about ${service.title}`}>Learn more <span>→</span></Link>
               </div>
             </article>
           ))}
@@ -159,13 +164,13 @@ export default function Home() {
             <span className="solution-number">01</span>
             <h3>Tailor-made escapes</h3>
             <p>We build a complete trip around your interests, timing and budget.</p>
-            <a href="#contact">Start planning <span>→</span></a>
+            <Link href="/plan-a-trip">Start planning <span>→</span></Link>
           </article>
           <article className="raised-card mini-solution">
             <span className="solution-number">02</span>
             <h3>Ready-to-book favourites</h3>
             <p>Curated itineraries for travellers who want inspiration without the guesswork.</p>
-            <a href="#stories">Find your escape <span>→</span></a>
+            <Link href="/packages">Find your escape <span>→</span></Link>
           </article>
         </div>
       </section>
@@ -190,7 +195,7 @@ export default function Home() {
           <p className="overline">Travel managed your way</p>
           <h2>Your plans, beautifully connected.</h2>
           <p>Discover, book and manage the details with one expert team. More choice, less friction and support whenever plans change.</p>
-          <a className="pill white" href="#contact">Plan with TVSE <span>→</span></a>
+          <Link className="pill white" href="/plan-a-trip">Plan with TVSE <span>→</span></Link>
         </div>
         <div className="platform-art" aria-hidden="true">
           <i /><i /><i /><i />
@@ -240,12 +245,12 @@ export default function Home() {
               <div className="story-copy">
                 <span>{story.kicker}</span>
                 <h3>{story.title}</h3>
-                <a href="#contact">Read on <b>→</b></a>
+                <Link href="/resources">Read on <b>→</b></Link>
               </div>
             </article>
           ))}
         </div>
-        <a className="pill primary story-button" href="#destinations">View all destinations <span>→</span></a>
+        <Link className="pill primary story-button" href="/destinations">View all destinations <span>→</span></Link>
       </section>
 
       <section className="specialist shell" aria-labelledby="specialist-title">
@@ -254,10 +259,10 @@ export default function Home() {
           <h2 id="specialist-title">Specialized trips built to outperform the ordinary</h2>
         </div>
         <div className="specialist-list">
-          <a href="#contact"><span>01</span>Honeymoons & romance <b>→</b></a>
-          <a href="#contact"><span>02</span>Safaris & adventure <b>→</b></a>
-          <a href="#contact"><span>03</span>Family holidays <b>→</b></a>
-          <a href="#contact"><span>04</span>Business travel <b>→</b></a>
+          <Link href="/plan-a-trip"><span>01</span>Honeymoons & romance <b>→</b></Link>
+          <Link href="/destinations/maasai-mara"><span>02</span>Safaris & adventure <b>→</b></Link>
+          <Link href="/packages/kenya-family-adventure"><span>03</span>Family holidays <b>→</b></Link>
+          <Link href="/corporate"><span>04</span>Business travel <b>→</b></Link>
         </div>
         <div className="specialist-path" aria-hidden="true"><i /><i /><i /></div>
         <motion.div
@@ -289,7 +294,7 @@ export default function Home() {
         <article className="number-card blue"><strong>40+</strong><span>destinations worldwide</span></article>
         <article className="number-card violet"><strong>24/7</strong><span>support when you travel</span></article>
         <article className="number-card green"><strong>Always</strong><span>people first</span></article>
-        <article className="number-story"><p>Our story is one of curiosity, care and getting every detail right — so you can simply enjoy the journey.</p><a className="pill primary compact" href="#contact">Get to know us <span>→</span></a></article>
+        <article className="number-story"><p>Our story is one of curiosity, care and getting every detail right — so you can simply enjoy the journey.</p><Link className="pill primary compact" href="/about">Get to know us <span>→</span></Link></article>
       </section>
 
       <SiteFooter />

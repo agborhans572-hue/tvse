@@ -1,0 +1,4 @@
+import type { Metadata } from "next";
+import { LegalPage } from "../components/LegalPage";
+export const metadata: Metadata = { title: "Cookies | TVSE Travel" };
+export default function CookiesPage() { return <LegalPage title="Cookie notice" updated="August 6, 2026" sections={[["Essential cookies","TVSE uses an essential secure session cookie after magic-link sign-in. It keeps you signed in, is not available to page scripts and expires automatically."],["Preferences","The current application does not use advertising cookies or browser storage as the source of truth for account or booking data."],["Email links","Single-use sign-in links expire after 15 minutes. Once used, they cannot be used again."],["Managing cookies","Blocking the essential session cookie will prevent protected traveler, business and partner workspaces from functioning."]]}/>; }

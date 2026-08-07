@@ -44,6 +44,36 @@ const services = [
   },
 ];
 
+const serviceMoments = [
+  {
+    id: "services",
+    theme: "essential",
+    start: 1,
+    overline: "Begin with the essentials",
+    title: "Stay beautifully. Fly confidently.",
+    text: "Thoughtful accommodation and expert ticketing give every journey a smooth beginning.",
+    items: [services[0], services[2]],
+  },
+  {
+    id: "ground-support",
+    theme: "tint",
+    start: 3,
+    overline: "On-the-ground support",
+    title: "Every connection, handled door to door.",
+    text: "Practical support keeps people, luggage and important items moving exactly where they need to go.",
+    items: [services[1], services[5]],
+  },
+  {
+    id: "explore-your-way",
+    theme: "offset",
+    start: 5,
+    overline: "More ways to discover",
+    title: "Take the road. Follow the wild.",
+    text: "Choose the freedom of your own vehicle or let TVSE shape an unforgettable safari into the journey.",
+    items: [services[3], services[4]],
+  },
+];
+
 const stories = [
   {
     kicker: "ISLAND ESCAPE",
@@ -74,6 +104,39 @@ const featuredAirlines = [
   { name: "Lufthansa", logo: "/airlines/lufthansa.svg" },
   { name: "Air France", logo: "/airlines/air-france.svg" },
 ];
+
+function ServiceMoment({ moment }: { moment: (typeof serviceMoments)[number] }) {
+  return (
+    <section
+      className={`service-moment service-moment--${moment.theme}${moment.theme === "tint" ? " shell-wide" : ""}`}
+      id={moment.id}
+      aria-labelledby={`${moment.id}-title`}
+    >
+      <div className="shell service-moment-heading">
+        <div>
+          <p className="overline">{moment.overline}</p>
+          <h2 id={`${moment.id}-title`}>{moment.title}</h2>
+        </div>
+        <p>{moment.text}</p>
+      </div>
+      <div className="shell service-feature-grid">
+        {moment.items.map((service, index) => (
+          <article className="service-feature-card" key={service.title}>
+            <Image src={service.image} alt="" fill unoptimized sizes="(max-width: 820px) 100vw, 50vw" />
+            <div className="service-feature-copy">
+              <span className="service-index">0{moment.start + index}</span>
+              <h3>{service.title}</h3>
+              <p>{service.text}</p>
+              <Link href={service.href} aria-label={`Learn more about ${service.title}`}>
+                Explore service <b aria-hidden="true">&#8594;</b>
+              </Link>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
   const reduceMotion = useReducedMotion();
@@ -178,27 +241,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="services shell section" id="services">
-        <div className="center-heading">
-          <p className="overline">Everything your journey needs</p>
-          <h2>One trusted team.<br />Every travel service covered.</h2>
-          <p>From your first booking to your final transfer, TVSE coordinates the details that keep every journey moving.</p>
-        </div>
-
-        <div className="service-grid">
-          {services.map((service) => (
-            <article className="service-card" key={service.title}>
-              <Image src={service.image} alt="" fill unoptimized sizes="(max-width: 820px) 100vw, (max-width: 1060px) 50vw, 33vw" />
-              <div className="service-shade" />
-              <div className="service-copy">
-                <h3>{service.title}</h3>
-                <p>{service.text}</p>
-                <Link href={service.href} aria-label={`Learn more about ${service.title}`}>Learn more <span>→</span></Link>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      <ServiceMoment moment={serviceMoments[0]} />
 
       <section className="solutions shell section" id="destinations">
         <div className="solution-intro raised-card">
@@ -279,6 +322,8 @@ export default function Home() {
         </div>
       </section>
 
+      <ServiceMoment moment={serviceMoments[1]} />
+
       <section className="stories shell section" id="stories">
         <div className="center-heading">
           <p className="overline">Travel inspiration</p>
@@ -299,6 +344,8 @@ export default function Home() {
         </div>
         <Link className="pill primary story-button" href="/destinations">View all destinations <span>→</span></Link>
       </section>
+
+      <ServiceMoment moment={serviceMoments[2]} />
 
       <section className="specialist shell" aria-labelledby="specialist-title">
         <div className="specialist-copy">

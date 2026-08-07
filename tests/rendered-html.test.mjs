@@ -32,6 +32,10 @@ test("server-renders the TVSE travel experience", async () => {
   for (const service of ["Accommodation", "Delivery services", "Ticketing", "Car rental services", "Safaris", "Airport transfers"]) {
     assert.match(html, new RegExp(service, "i"));
   }
+  assert.match(html, /Stay beautifully\. Fly confidently\./);
+  assert.match(html, /Every connection, handled door to door\./);
+  assert.match(html, /Take the road\. Follow the wild\./);
+  assert.doesNotMatch(html, /service-grid/);
   assert.doesNotMatch(html, /destinations in our current catalog/);
   assert.doesNotMatch(html, /Your island itinerary is ready|FEATURED ESCAPE/);
   assert.match(html, /Maasai Mara/);

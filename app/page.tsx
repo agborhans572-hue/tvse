@@ -74,7 +74,7 @@ export default function Home() {
           <motion.div
             className="hero-phone-wrap"
             initial={false}
-            animate={reduceMotion ? undefined : { y: [0, -10, 0] }}
+            animate={reduceMotion ? undefined : { y: [0, -6, 0] }}
             transition={{ duration: 5.5, ease: "easeInOut", repeat: Infinity }}
           >
             <Image
@@ -85,7 +85,7 @@ export default function Home() {
               height={1217}
               unoptimized
               priority
-              sizes="(max-width: 560px) 245px, (max-width: 820px) 290px, 420px"
+              sizes="(max-width: 560px) 180px, (max-width: 820px) 202px, 340px"
             />
           </motion.div>
           <div className="hero-rings" aria-hidden="true"><i /><i /><i /></div>

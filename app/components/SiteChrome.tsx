@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
+import { usePublicContactLinks } from "./usePublicContactLinks";
 
 const navGroups = [
   {
@@ -104,7 +105,7 @@ export function SiteHeader() {
       </nav>
 
       <div className="header-actions">
-        <Link className="search-link" href="/resources" aria-label="Search TVSE resources">⌕</Link>
+        <Link className="search-link" href="/search" aria-label="Search TVSE destinations, packages and resources">⌕</Link>
         <Link className="pill primary compact" href="/plan-a-trip">Get started</Link>
         <button
           className="menu-toggle"
@@ -122,6 +123,7 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   const reduceMotion = useReducedMotion();
+  const contactLinks = usePublicContactLinks();
 
   return (
     <footer className="footer" id="contact">
@@ -142,7 +144,7 @@ export function SiteFooter() {
             </motion.span>
           </Link>
           <p>People-first travel design for holidays, business trips and unforgettable escapes - from Nairobi to the world.</p>
-          <div className="socials" aria-label="Social media"><Link href="/contact">in</Link><Link href="/contact">ig</Link><Link href="/contact">f</Link></div>
+          {(contactLinks.linkedin || contactLinks.instagram || contactLinks.facebook) && <div className="socials" aria-label="Social media">{contactLinks.linkedin&&<a href={contactLinks.linkedin} rel="noreferrer" target="_blank">in</a>}{contactLinks.instagram&&<a href={contactLinks.instagram} rel="noreferrer" target="_blank">ig</a>}{contactLinks.facebook&&<a href={contactLinks.facebook} rel="noreferrer" target="_blank">f</a>}</div>}
         </div>
         <div>
           <h3>Solutions</h3>

@@ -83,7 +83,7 @@ export const pages: Record<string, TvsePage> = {
     sectionEyebrow: "Freedom with confidence",
     sectionTitle: "Every detail in one place. Support at every turn.",
     sectionText: "Travel is personal. Choose self-service convenience when plans are simple, and reach an experienced TVSE travel specialist whenever the journey needs a human touch.",
-    metric: "24/7",
+    metric: "Trip-linked",
     metricLabel: "traveler assistance",
     features: [
       { title: "More choice", text: "Compare trusted flight, stay and transfer options shaped around the trip." },
@@ -188,8 +188,8 @@ export const pages: Record<string, TvsePage> = {
     sectionEyebrow: "Choice without the guesswork",
     sectionTitle: "Build the travel ecosystem your people actually need.",
     sectionText: "We evaluate every partner for service quality, regional fit and traveler value, giving TVSE clients the freedom to add capabilities without adding complexity.",
-    metric: "40+",
-    metricLabel: "curated destination partners",
+    metric: "Curated",
+    metricLabel: "travel service partners",
     features: [
       { title: "Payments", text: "Secure corporate, virtual and traveler-friendly payment options." },
       { title: "Travel risk", text: "Destination intelligence, alerts and support for changing conditions." },
@@ -280,9 +280,9 @@ export const pages: Record<string, TvsePage> = {
     heroImage: "/hero-zanzibar.jpg",
     sectionEyebrow: "Travel with confidence",
     sectionTitle: "Everything you need before, during and after the journey.",
-    sectionText: "Sign in with the email used for your booking. If you need urgent help, the support details on your itinerary remain available 24/7.",
-    metric: "24/7",
-    metricLabel: "trip assistance",
+    sectionText: "Sign in with the email used for your booking. Support contacts and the latest journey details stay together in your itinerary.",
+    metric: "Trip-linked",
+    metricLabel: "journey assistance",
     features: [
       { title: "Live itinerary", text: "See flights, stays, transfers and confirmations in one timeline." },
       { title: "Travel documents", text: "Keep important vouchers and booking details close at hand." },

@@ -43,3 +43,5 @@ next-env.d.ts
 /work/
 /node_modules_stale/
 /.devserver.*.log
+/.codex-run/
+*.tsbuildinfo

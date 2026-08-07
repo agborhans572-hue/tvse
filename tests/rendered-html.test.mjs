@@ -36,9 +36,9 @@ test("server-renders every header destination", async () => {
     ["/technology/platform", "Control, choice and calm", "layout-technology-platform"],
     ["/technology/marketplace", "More trusted partners", "layout-technology-marketplace"],
     ["/technology/apis-data", "Travel data", "layout-technology-apis-data"],
-    ["/resources", "Business travel resources", "resources-layout"],
-    ["/resources/blog", "Blog", "blog-layout"],
-    ["/resources/guides", "How To Guides", "guides-layout"],
+    ["/resources", "Travel ideas that take you further", "resources-live-page"],
+    ["/resources/blog", "Blog", "resources-live-page"],
+    ["/resources/guides", "How To Guides", "resources-live-page"],
     ["/login/traveler", "Your trip, all in one place", "portal-layout-login-traveler"],
     ["/login/business", "Manage your team", "portal-layout-login-business"],
     ["/login/partner", "Connect with TVSE", "portal-layout-login-partner"],
@@ -51,6 +51,21 @@ test("server-renders every header destination", async () => {
     const html = await response.text();
     assert.match(html, new RegExp(expected, "i"), `${path} should contain its page heading`);
     assert.match(html, new RegExp(layoutClass, "i"), `${path} should use its page-specific layout`);
+  }
+});
+
+test("search, resource detail pages and discovery files render", async () => {
+  const pages = [
+    ["/search?q=zanzibar", "Zanzibar beyond the beach"],
+    ["/resources/blog/zanzibar-beyond-the-beach", "Culture, food and island history"],
+    ["/resources/guides/build-a-travel-policy", "Practical guardrails"],
+    ["/sitemap.xml", "destinations/zanzibar"],
+    ["/robots.txt", "Disallow: /staff/"],
+  ];
+  for (const [path, expected] of pages) {
+    const response = await render(path);
+    assert.equal(response.status, 200, `${path} should render successfully`);
+    assert.match(await response.text(), new RegExp(expected, "i"));
   }
 });
 

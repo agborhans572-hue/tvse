@@ -19,10 +19,11 @@ export async function generateMetadata({ params }: RouteProps): Promise<Metadata
   return {
     title: `${page.eyebrow} | TVSE Travel`,
     description: page.intro,
+    alternates: { canonical: page.path },
     openGraph: {
       title: `${page.eyebrow} | TVSE Travel`,
       description: page.intro,
-      images: [{ url: "/og-motion.png", width: 1200, height: 630, alt: "TVSE Travel airplane journey" }],
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: "TVSE Travel Agency Ltd" }],
     },
   };
 }

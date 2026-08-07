@@ -1,16 +1,26 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { getD1, getUploads } from "../db";
 import { formatMoney, type Currency } from "./travel";
+import { publicBaseUrl, runtimeEnv } from "./runtime";
 
 type DocumentInput = { title: string; reference: string; subtitle: string; sections: Array<{ heading: string; lines: string[] }>; footer?: string };
 
 async function buildPdf(input: DocumentInput): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   const regular = await pdf.embedFont(StandardFonts.Helvetica); const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  let brand: Awaited<ReturnType<typeof pdf.embedPng>> | null = null;
+  try {
+    const response = await runtimeEnv.ASSETS?.fetch(new Request(new URL("/tvse-travel-agency-ltd-logo-transparent.png", publicBaseUrl())));
+    if (response?.ok) brand = await pdf.embedPng(await response.arrayBuffer());
+  } catch { /* Text fallback keeps documents available if static assets are unavailable. */ }
   let page = pdf.addPage([595, 842]); let y = 770;
-  const newPage = () => { page = pdf.addPage([595, 842]); y = 780; };
-  page.drawRectangle({ x: 0, y: 785, width: 595, height: 57, color: rgb(.34, .2, 1) });
-  page.drawText("TVSE TRAVEL", { x: 42, y: 808, size: 14, font: bold, color: rgb(1,1,1) });
+  const drawBrand = () => {
+    page.drawRectangle({ x: 0, y: 785, width: 595, height: 57, color: rgb(.34, .2, 1) });
+    if (brand) { const size=brand.scaleToFit(180,45); page.drawImage(brand,{x:42,y:791,width:size.width,height:size.height}); }
+    else page.drawText("TVSE TRAVEL AGENCY LTD", { x: 42, y: 808, size: 14, font: bold, color: rgb(1,1,1) });
+  };
+  drawBrand();
+  const newPage = () => { page = pdf.addPage([595, 842]); y = 760; drawBrand(); };
   page.drawText(input.title, { x: 42, y, size: 28, font: bold, color: rgb(.04,.04,.05) }); y -= 31;
   page.drawText(input.reference, { x: 42, y, size: 12, font: bold, color: rgb(1,.31,0) }); y -= 22;
   page.drawText(input.subtitle, { x: 42, y, size: 11, font: regular, color: rgb(.35,.37,.42) }); y -= 36;

@@ -62,7 +62,7 @@ export async function requirePageActor(area: "portal" | "business" | "partner" |
     partner: ["partner", "owner", "admin", "agent"],
     staff: [...internalRoles],
   };
-  if (actor && allowed[area].includes(actor.role)) return actor;
+  if (actor && allowed[area].includes(actor.role) && (area !== "staff" || actor.source === "platform")) return actor;
   if (area === "staff") {
     const platform = await getChatGPTUser();
     if (platform) redirect("/access-denied");
@@ -78,7 +78,7 @@ export function authorize(actor: Actor | null, roles: Role[]): Actor {
   return actor;
 }
 
-export class AuthError extends Error { constructor(message: string, public status: 401 | 403) { super(message); } }
+export class AuthError extends Error { status:401|403;constructor(message: string,status: 401 | 403) { super(message);this.status=status; } }
 
 export async function issueMagicLink(email: string, portal: "traveler" | "business" | "partner", returnTo: string, request: Request) {
   const db = getD1();
@@ -88,7 +88,8 @@ export async function issueMagicLink(email: string, portal: "traveler" | "busine
   if ((recent?.count ?? 0) >= 5) return { accepted: true, debugLink: null };
   const expectedRoles: Record<typeof portal, Role[]> = { traveler: ["traveler"], business: ["corporate_requester", "corporate_approver"], partner: ["partner"] };
   const existing = await db.prepare("SELECT id, role FROM users WHERE email = ? AND status IN ('active','invited')").bind(normalizedEmail).first<{ id: string; role: Role }>();
-  if (portal !== "traveler" && (!existing || !expectedRoles[portal].includes(existing.role))) return { accepted: true, debugLink: null };
+  if (existing && !expectedRoles[portal].includes(existing.role)) return { accepted: true, debugLink: null };
+  if (portal !== "traveler" && !existing) return { accepted: true, debugLink: null };
 
   const token = randomToken(32); const tokenHash = await sha256(token); const id = createId("ml");
   const requestHeaders = await headers();

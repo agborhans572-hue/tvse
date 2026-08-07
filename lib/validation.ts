@@ -4,6 +4,14 @@ const trimmed = (max: number) => z.string().trim().min(1).max(max);
 const email = z.string().trim().toLowerCase().email().max(254);
 const currency = z.enum(["KES", "USD"]);
 const safePath = z.string().trim().max(300).refine((value) => value.startsWith("/") && !value.startsWith("//"), "Invalid return path");
+const marketingContext = z.object({
+  sourcePath: safePath.optional(),
+  destinationSlug: z.string().trim().max(120).optional(),
+  packageSlug: z.string().trim().max(120).optional(),
+  utmSource: z.string().trim().max(120).optional(),
+  utmMedium: z.string().trim().max(120).optional(),
+  utmCampaign: z.string().trim().max(160).optional(),
+}).optional().default({});
 
 export const magicLinkRequestSchema = z.object({
   email,
@@ -16,6 +24,9 @@ export const contactSchema = z.object({
   company: z.string().trim().max(160).optional().default(""),
   type: z.enum(["personal", "support", "corporate", "partner"]).default("personal"),
   message: trimmed(4000),
+  consent: z.literal(true),
+  consentVersion: z.string().trim().max(40).default("2026-08"),
+  marketing: marketingContext,
 });
 
 export const tripRequestSchema = z.object({
@@ -28,7 +39,12 @@ export const tripRequestSchema = z.object({
   interests: z.array(z.string().trim().min(1).max(80)).max(20).default([]),
   notes: z.string().trim().max(4000).optional().default(""),
   organizationId: z.string().trim().max(80).optional(),
+  consent: z.literal(true),
+  consentVersion: z.string().trim().max(40).default("2026-08"),
+  marketing: marketingContext,
 }).superRefine((value, ctx) => {
+  const today = new Date().toISOString().slice(0, 10);
+  if (value.departureDate < today) ctx.addIssue({ code: "custom", path: ["departureDate"], message: "Departure date cannot be in the past" });
   if (value.returnDate < value.departureDate) ctx.addIssue({ code: "custom", path: ["returnDate"], message: "Return date must be on or after departure" });
 });
 
@@ -46,12 +62,30 @@ export const createQuoteSchema = z.object({
   taxMinor: z.coerce.number().int().min(0).default(0), notes: z.string().trim().max(4000).optional().default(""),
   items: z.array(quoteItemSchema).min(1).max(100),
 });
+export const reviseQuoteSchema = createQuoteSchema.omit({ tripRequestId: true });
 
 export const quoteDecisionSchema = z.object({ decision: z.enum(["approved", "declined"]), comment: z.string().trim().max(2000).optional().default("") });
 
 export const invoiceSchema = z.object({ bookingId: trimmed(80), dueDate: z.string().date(), taxMinor: z.coerce.number().int().min(0).default(0), note: z.string().trim().max(2000).optional().default("") });
-export const paymentSchema = z.object({ amountMinor: z.coerce.number().int().positive().max(2_000_000_000), currency, method: z.enum(["bank_transfer", "cash", "external_link", "mobile_money", "card", "other"]), reference: z.string().trim().max(160).optional().default(""), paidAt: z.coerce.number().int().positive().optional(), note: z.string().trim().max(2000).optional().default("") });
+export const paymentSchema = z.object({ amountMinor: z.coerce.number().int().positive().max(2_000_000_000), currency, method: z.enum(["bank_transfer", "cash", "external_link", "mobile_money", "card", "other"]), reference: z.string().trim().max(160).optional().default(""), paidAt: z.coerce.number().int().positive().optional(), note: z.string().trim().max(2000).optional().default("") }).superRefine((value, ctx) => {
+  if (value.method !== "cash" && !value.reference) ctx.addIssue({ code: "custom", path: ["reference"], message: "A payment reference is required for this method" });
+});
 export const supportSchema = z.object({ bookingId: z.string().trim().max(80).optional(), subject: trimmed(180), priority: z.enum(["low", "normal", "high", "urgent"]).default("normal"), message: trimmed(5000) });
+export const supportMessageSchema = z.object({ message: trimmed(5000), internal: z.boolean().optional().default(false) });
+export const supportUpdateSchema = z.object({ status: z.enum(["open", "waiting_customer", "waiting_tvse", "resolved", "closed"]).optional(), priority: z.enum(["low", "normal", "high", "urgent"]).optional(), assignedAgentId: z.string().trim().max(80).nullable().optional() }).refine((value) => Object.keys(value).length > 0, "Choose a support update");
+
+export const leadUpdateSchema = z.object({ status: z.enum(["new", "contacted", "qualified", "converted", "closed"]).optional(), assignedAgentId: z.string().trim().max(80).nullable().optional() }).refine((value) => Object.keys(value).length > 0, "Choose a lead update");
+export const leadPatchSchema = z.object({ id: trimmed(80), status: z.enum(["new", "contacted", "qualified", "closed"]).optional(), assignedAgentId: z.string().trim().max(80).nullable().optional() }).refine((value) => Object.keys(value).some((key) => key !== "id"), "Choose a lead update");
+export const leadConversionSchema = z.object({
+  kind: z.enum(["personal", "corporate", "event"]).default("personal"), origin: trimmed(120), destination: trimmed(180),
+  departureDate: z.string().date(), returnDate: z.string().date(), travelerCount: z.coerce.number().int().min(1).max(100),
+  budgetMinor: z.coerce.number().int().min(0).max(2_000_000_000), currency: currency.default("KES"),
+  interests: z.array(z.string().trim().min(1).max(80)).max(20).default([]), notes: z.string().trim().max(4000).optional().default(""),
+}).superRefine((value, ctx) => {
+  const today = new Date().toISOString().slice(0, 10);
+  if (value.departureDate < today) ctx.addIssue({ code: "custom", path: ["departureDate"], message: "Departure date cannot be in the past" });
+  if (value.returnDate < value.departureDate) ctx.addIssue({ code: "custom", path: ["returnDate"], message: "Return date must be on or after departure" });
+});
 
 export const userInviteSchema = z.object({ email, fullName: trimmed(120), role: z.enum(["corporate_requester", "corporate_approver", "partner", "agent", "finance", "content", "admin"]), organizationId: z.string().trim().max(80).optional() });
 
@@ -89,6 +123,8 @@ export const contentSchema = z.object({
   durationDays: z.coerce.number().int().min(1).max(365).optional(), fromPriceMinor: z.coerce.number().int().min(0).optional(), currency: currency.optional(), destinationId: z.string().trim().max(80).optional(),
   seoTitle: z.string().trim().max(180).optional(), seoDescription: z.string().trim().max(300).optional(),
 });
+
+export type ContentInput = z.infer<typeof contentSchema>;
 
 export function validationError(error: z.ZodError) {
   return { error: "Please check the highlighted information.", fields: error.flatten().fieldErrors };

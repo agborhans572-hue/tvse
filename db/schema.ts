@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { index, integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 const timestamps = {
@@ -100,11 +101,17 @@ export const leads = sqliteTable("leads", {
   company: text("company"),
   message: text("message").notNull(),
   source: text("source").notNull().default("website"),
+  sourcePath: text("source_path"),
+  marketingContextJson: text("marketing_context_json").notNull().default("{}"),
+  consentAt: integer("consent_at", { mode: "timestamp_ms" }),
+  consentVersion: text("consent_version"),
   assignedAgentId: text("assigned_agent_id").references(() => users.id, { onDelete: "set null" }),
+  convertedTripRequestId: text("converted_trip_request_id"),
   ...timestamps,
 }, (table) => [
   index("idx_leads_status_created").on(table.status, table.createdAt),
   index("idx_leads_email").on(table.email),
+  index("idx_leads_converted_request").on(table.convertedTripRequestId),
 ]);
 
 export const tripRequests = sqliteTable("trip_requests", {
@@ -130,6 +137,10 @@ export const tripRequests = sqliteTable("trip_requests", {
   interestsJson: text("interests_json").notNull().default("[]"),
   notes: text("notes"),
   source: text("source").notNull().default("website"),
+  sourcePath: text("source_path"),
+  marketingContextJson: text("marketing_context_json").notNull().default("{}"),
+  consentAt: integer("consent_at", { mode: "timestamp_ms" }),
+  consentVersion: text("consent_version"),
   ...timestamps,
 }, (table) => [
   uniqueIndex("idx_trip_requests_number").on(table.requestNumber),
@@ -178,6 +189,7 @@ export const quotes = sqliteTable("quotes", {
   userId: text("user_id").references(() => users.id, { onDelete: "set null" }),
   organizationId: text("organization_id").references(() => organizations.id, { onDelete: "set null" }),
   status: text("status", { enum: ["draft", "sent", "viewed", "approved", "declined", "expired", "superseded"] }).notNull().default("draft"),
+  current: integer("current", { mode: "boolean" }).notNull().default(true),
   currentVersion: integer("current_version").notNull().default(1),
   currency: text("currency", { enum: ["KES", "USD"] }).notNull().default("KES"),
   exchangeRate: real("exchange_rate").notNull().default(1),
@@ -185,7 +197,7 @@ export const quotes = sqliteTable("quotes", {
   sentAt: integer("sent_at", { mode: "timestamp_ms" }),
   approvedAt: integer("approved_at", { mode: "timestamp_ms" }),
   ...timestamps,
-}, (table) => [uniqueIndex("idx_quotes_number").on(table.quoteNumber), index("idx_quotes_request").on(table.tripRequestId), index("idx_quotes_user_status").on(table.userId, table.status)]);
+}, (table) => [uniqueIndex("idx_quotes_number").on(table.quoteNumber), uniqueIndex("idx_quotes_request_current").on(table.tripRequestId).where(sql`${table.current} = 1`), index("idx_quotes_request").on(table.tripRequestId), index("idx_quotes_user_status").on(table.userId, table.status)]);
 
 export const quoteVersions = sqliteTable("quote_versions", {
   id: text("id").primaryKey(),
@@ -231,7 +243,7 @@ export const bookings = sqliteTable("bookings", {
   travelerCount: integer("traveler_count").notNull().default(1),
   itineraryPdfKey: text("itinerary_pdf_key"),
   ...timestamps,
-}, (table) => [uniqueIndex("idx_bookings_number").on(table.bookingNumber), uniqueIndex("idx_bookings_quote").on(table.quoteId), index("idx_bookings_user_status").on(table.userId, table.status), index("idx_bookings_org_status").on(table.organizationId, table.status)]);
+}, (table) => [uniqueIndex("idx_bookings_number").on(table.bookingNumber), uniqueIndex("idx_bookings_quote").on(table.quoteId), uniqueIndex("idx_bookings_request").on(table.tripRequestId), index("idx_bookings_user_status").on(table.userId, table.status), index("idx_bookings_org_status").on(table.organizationId, table.status)]);
 
 export const itineraryDays = sqliteTable("itinerary_days", {
   id: text("id").primaryKey(),
@@ -285,8 +297,15 @@ export const invoices = sqliteTable("invoices", {
   issueDate: text("issue_date"),
   dueDate: text("due_date"),
   pdfKey: text("pdf_key"),
+  current: integer("current", { mode: "boolean" }).notNull().default(true),
   ...timestamps,
-}, (table) => [uniqueIndex("idx_invoices_number").on(table.invoiceNumber), index("idx_invoices_booking").on(table.bookingId), index("idx_invoices_status_due").on(table.status, table.dueDate), index("idx_invoices_user_status").on(table.userId, table.status)]);
+}, (table) => [
+  uniqueIndex("idx_invoices_number").on(table.invoiceNumber),
+  uniqueIndex("idx_invoices_booking_current").on(table.bookingId).where(sql`${table.current} = 1`),
+  index("idx_invoices_booking").on(table.bookingId),
+  index("idx_invoices_status_due").on(table.status, table.dueDate),
+  index("idx_invoices_user_status").on(table.userId, table.status),
+]);
 
 export const invoiceItems = sqliteTable("invoice_items", {
   id: text("id").primaryKey(),
@@ -311,8 +330,14 @@ export const payments = sqliteTable("payments", {
   recordedBy: text("recorded_by").notNull().references(() => users.id, { onDelete: "restrict" }),
   receiptKey: text("receipt_key"),
   note: text("note"),
+  idempotencyKey: text("idempotency_key"),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
-}, (table) => [uniqueIndex("idx_payments_receipt").on(table.receiptNumber), index("idx_payments_invoice_paid").on(table.invoiceId, table.paidAt)]);
+}, (table) => [
+  uniqueIndex("idx_payments_receipt").on(table.receiptNumber),
+  uniqueIndex("idx_payments_idempotency").on(table.idempotencyKey),
+  uniqueIndex("idx_payments_invoice_reference").on(table.invoiceId, table.reference),
+  index("idx_payments_invoice_paid").on(table.invoiceId, table.paidAt),
+]);
 
 export const supportTickets = sqliteTable("support_tickets", {
   id: text("id").primaryKey(),
@@ -414,11 +439,41 @@ export const notifications = sqliteTable("notifications", {
   status: text("status", { enum: ["pending", "sending", "sent", "delivered", "failed", "bounced"] }).notNull().default("pending"),
   payloadJson: text("payload_json").notNull().default("{}"),
   providerId: text("provider_id"),
+  dedupeKey: text("dedupe_key"),
   attempts: integer("attempts").notNull().default(0),
   lastError: text("last_error"),
   sentAt: integer("sent_at", { mode: "timestamp_ms" }),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
-}, (table) => [index("idx_notifications_status_created").on(table.status, table.createdAt), index("idx_notifications_provider").on(table.providerId)]);
+}, (table) => [uniqueIndex("idx_notifications_dedupe").on(table.dedupeKey), index("idx_notifications_status_created").on(table.status, table.createdAt), index("idx_notifications_provider").on(table.providerId)]);
+
+export const idempotencyRecords = sqliteTable("idempotency_records", {
+  id: text("id").primaryKey(),
+  // Authenticated mutations use the user id; anonymous mutations use a
+  // one-way hash of their email. This deliberately is not a foreign key.
+  actorId: text("actor_id").notNull(),
+  scope: text("scope").notNull(),
+  keyHash: text("key_hash").notNull(),
+  status: text("status", { enum: ["pending", "completed"] }).notNull().default("pending"),
+  responseJson: text("response_json"),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+}, (table) => [
+  uniqueIndex("idx_idempotency_actor_scope_key").on(table.actorId, table.scope, table.keyHash),
+  index("idx_idempotency_expiry").on(table.expiresAt),
+]);
+
+export const rateLimits = sqliteTable("rate_limits", {
+  id: text("id").primaryKey(),
+  scope: text("scope").notNull(),
+  keyHash: text("key_hash").notNull(),
+  bucketStart: integer("bucket_start").notNull(),
+  count: integer("count").notNull().default(1),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+}, (table) => [
+  uniqueIndex("idx_rate_limits_scope_key_bucket").on(table.scope, table.keyHash, table.bucketStart),
+  index("idx_rate_limits_updated").on(table.updatedAt),
+]);
 
 export const webhookEvents = sqliteTable("webhook_events", {
   id: text("id").primaryKey(),

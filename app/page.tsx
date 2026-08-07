@@ -123,8 +123,8 @@ export default function Home() {
         <div className="shell trust-inner">
           <h2>Travel designed around you, supported all the way</h2>
           <div className="trust-items">
-            <div><strong>40+</strong><span>destinations curated</span></div>
-            <div><strong>24/7</strong><span>traveller support</span></div>
+            <div><strong>12</strong><span>destinations in our current catalog</span></div>
+            <div><strong>Trip-linked</strong><span>traveller support</span></div>
             <div><strong>1</strong><span>dedicated travel partner</span></div>
             <div><strong>100%</strong><span>personal attention</span></div>
           </div>
@@ -291,8 +291,8 @@ export default function Home() {
       <section className="numbers shell section">
         <article className="number-lead"><p className="overline">The TVSE difference</p><h2>We create connections that move people and ideas forward.</h2></article>
         <article className="number-card orange"><strong>Local</strong><span>knowledge, global reach</span></article>
-        <article className="number-card blue"><strong>40+</strong><span>destinations worldwide</span></article>
-        <article className="number-card violet"><strong>24/7</strong><span>support when you travel</span></article>
+        <article className="number-card blue"><strong>12</strong><span>curated destinations</span></article>
+        <article className="number-card violet"><strong>With you</strong><span>through every active journey</span></article>
         <article className="number-card green"><strong>Always</strong><span>people first</span></article>
         <article className="number-story"><p>Our story is one of curiosity, care and getting every detail right — so you can simply enjoy the journey.</p><Link className="pill primary compact" href="/about">Get to know us <span>→</span></Link></article>
       </section>

@@ -4,9 +4,9 @@ import handler from "vinext/server/app-router-entry";
 import { installRuntimeEnv, type TvseRuntimeEnv } from "../lib/runtime";
 
 interface Env extends TvseRuntimeEnv {
-  ASSETS: Fetcher;
   DB: D1Database;
   UPLOADS: R2Bucket;
+  ASSETS: Fetcher;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {

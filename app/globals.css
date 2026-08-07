@@ -167,13 +167,19 @@ img { object-fit: cover; }
   transform: translateY(-50%);
 }
 
-.trust-band { margin-top: -50px; padding: 112px 0 58px; background: var(--navy); color: #fff; }
-.trust-inner h2 { margin: 0 0 47px; color: var(--orange); font-size: 25px; text-align: center; letter-spacing: -.03em; }
-.trust-items { display: grid; grid-template-columns: repeat(4, 1fr); }
-.trust-items > div { display: flex; flex-direction: column; align-items: center; padding: 10px 24px; border-right: 1px solid rgba(255,255,255,.2); text-align: center; }
-.trust-items > div:last-child { border-right: 0; }
-.trust-items strong { font-size: 30px; letter-spacing: -.04em; }
-.trust-items span { margin-top: 5px; color: rgba(255,255,255,.7); font-size: 12px; }
+.trust-band { margin-top: -50px; padding: 108px 0 64px; overflow: hidden; background: var(--navy); color: #fff; }
+.airline-marquee-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; margin-bottom: 34px; }
+.airline-marquee-heading > div { max-width: 720px; }
+.airline-marquee-kicker { margin: 0 0 9px; color: rgba(255,255,255,.58); font-size: 10px; font-weight: 850; letter-spacing: .16em; text-transform: uppercase; }
+.trust-inner h2 { margin: 0; color: var(--orange); font-size: 25px; line-height: 1.15; letter-spacing: -.03em; }
+.airline-marquee-heading > p { max-width: 390px; margin: 0; color: rgba(255,255,255,.68); font-size: 13px; line-height: 1.6; }
+.airline-marquee { position: relative; overflow: hidden; padding: 24px 0; border-top: 1px solid rgba(255,255,255,.13); border-bottom: 1px solid rgba(255,255,255,.13); -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.airline-marquee-track { display: flex; width: max-content; align-items: center; gap: 18px; animation: airline-marquee 32s linear infinite; }
+.airline-marquee:hover .airline-marquee-track { animation-play-state: paused; }
+.airline-marquee-group { display: flex; align-items: center; gap: 18px; }
+.airline-marquee-group span { display: inline-flex; min-width: max-content; align-items: center; gap: 12px; padding: 13px 20px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; background: rgba(255,255,255,.07); color: #fff; font-size: 16px; font-weight: 750; letter-spacing: -.025em; box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+.airline-marquee-group i { color: var(--orange); font-size: 14px; font-style: normal; }
+@keyframes airline-marquee { to { transform: translateX(calc(-50% - 9px)); } }
 
 .center-heading { max-width: 820px; margin: 0 auto 60px; text-align: center; }
 .center-heading h2, .solution-intro h2, .platform-copy h2, .stories h2, .number-lead h2 {
@@ -480,9 +486,8 @@ img { object-fit: cover; }
   .plane-glyph { font-size: 47px; }
   .flight-trail { width: 105px; right: 41px; height: 5px; }
   .trust-band { padding-top: 92px; }
-  .trust-items { grid-template-columns: repeat(2, 1fr); gap: 0; }
-  .trust-items > div { min-height: 100px; justify-content: center; border-bottom: 1px solid rgba(255,255,255,.2); }
-  .trust-items > div:nth-child(2) { border-right: 0; }
+  .airline-marquee-heading { align-items: flex-start; flex-direction: column; gap: 14px; }
+  .airline-marquee-heading > p { max-width: 520px; }
   .service-grid, .solution-grid, .story-grid { grid-template-columns: 1fr; }
   .service-card { height: 360px; }
   .platform-cta { grid-template-columns: 1fr; min-height: 760px; }
@@ -528,7 +533,8 @@ img { object-fit: cover; }
   .button-row { align-items: stretch; }
   .button-row .pill { flex: 1 1 100%; }
   .trust-inner h2 { font-size: 21px; }
-  .trust-items strong { font-size: 26px; }
+  .airline-marquee { padding: 18px 0; -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+  .airline-marquee-group span { padding: 11px 17px; font-size: 14px; }
   .center-heading h2, .solution-intro h2, .platform-copy h2, .stories h2, .number-lead h2 { font-size: 39px; }
   .service-card { height: 330px; }
   .service-copy { inset: auto 22px 22px; }
@@ -642,6 +648,9 @@ img { object-fit: cover; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  .airline-marquee { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .airline-marquee-track { animation: none; }
+  .airline-marquee-group:nth-child(2) { display: none; }
 }
 
 /* Page-specific BCD-inspired destinations */

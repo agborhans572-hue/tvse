@@ -50,6 +50,19 @@ const stories = [
   },
 ];
 
+const featuredAirlines = [
+  "Kenya Airways",
+  "Emirates",
+  "Qatar Airways",
+  "Ethiopian Airlines",
+  "Turkish Airlines",
+  "KLM",
+  "British Airways",
+  "RwandAir",
+  "Lufthansa",
+  "Air France",
+];
+
 export default function Home() {
   const reduceMotion = useReducedMotion();
 
@@ -118,14 +131,32 @@ export default function Home() {
         </motion.div>
       </section>
 
-      <section className="trust-band" aria-label="TVSE at a glance">
+      <section className="trust-band" aria-labelledby="airline-marquee-title">
         <div className="shell trust-inner">
-          <h2>Travel designed around you, supported all the way</h2>
-          <div className="trust-items">
-            <div><strong>12</strong><span>destinations in our current catalog</span></div>
-            <div><strong>Trip-linked</strong><span>traveller support</span></div>
-            <div><strong>1</strong><span>dedicated travel partner</span></div>
-            <div><strong>100%</strong><span>personal attention</span></div>
+          <div className="airline-marquee-heading">
+            <div>
+              <p className="airline-marquee-kicker">Featured airlines</p>
+              <h2 id="airline-marquee-title">Travel designed around you, supported all the way</h2>
+            </div>
+            <p>Explore route possibilities across leading regional and international carriers.</p>
+          </div>
+        </div>
+        <div className="airline-marquee" aria-label="Featured airlines">
+          <div className="airline-marquee-track">
+            {[0, 1].map((copy) => (
+              <div
+                className="airline-marquee-group"
+                key={copy}
+                aria-hidden={copy === 1 ? true : undefined}
+              >
+                {featuredAirlines.map((airline) => (
+                  <span key={`${copy}-${airline}`}>
+                    <i aria-hidden="true">&#9992;</i>
+                    {airline}
+                  </span>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </section>

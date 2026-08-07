@@ -132,38 +132,16 @@ img { object-fit: cover; }
 .button-row { display: flex; flex-wrap: wrap; gap: 12px; }
 .hero-visual { position: relative; height: 100%; overflow: hidden; }
 .hero-visual::before { content: ""; position: absolute; z-index: 1; inset: 0; background: linear-gradient(90deg, #fff 0%, transparent 13%), linear-gradient(0deg, rgba(10,28,41,.14), transparent 45%); }
-.hero-visual img { object-position: 58% 50%; }
+.hero-visual > img { object-position: 58% 50%; }
+.hero-device-stage { isolation: isolate; background: radial-gradient(circle at 65% 30%, rgba(87,52,255,.18), transparent 36%), linear-gradient(145deg,#f7f9ff 0%,#eaf0ff 58%,#fff1e9 100%); }
+.hero-device-stage::before { background: linear-gradient(90deg,#fff 0%,rgba(255,255,255,.78) 8%,transparent 24%),linear-gradient(0deg,rgba(32,47,61,.08),transparent 45%); }
+.hero-phone-wrap { position: absolute; z-index: 3; left: 0; right: 0; bottom: -92px; width: min(420px,78%); margin-inline: auto; }
+.hero-phone { width: 100%; height: auto; display: block; object-fit: contain; object-position: center; filter: drop-shadow(0 28px 28px rgba(20,27,55,.28)); }
 .hero-rings { position: absolute; z-index: 2; left: -74px; bottom: -93px; width: 270px; height: 270px; border: 30px solid var(--orange); border-radius: 50%; }
 .hero-rings i { position: absolute; border: 24px solid var(--orange); border-radius: 50%; }
 .hero-rings i:nth-child(1) { inset: 25px; }
 .hero-rings i:nth-child(2) { inset: 79px; }
 .hero-rings i:nth-child(3) { inset: 132px; background: var(--orange); }
-.trip-card {
-  position: absolute;
-  z-index: 3;
-  left: 40px;
-  top: 290px;
-  width: 290px;
-  min-height: 82px;
-  display: grid;
-  grid-template-columns: 42px 1fr auto;
-  gap: 12px;
-  align-items: center;
-  padding: 14px 16px;
-  border-radius: 10px;
-  background: rgba(255,255,255,.94);
-  box-shadow: 0 10px 30px rgba(10,20,40,.2);
-  backdrop-filter: blur(10px);
-}
-.trip-card-icon { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 9px; background: var(--orange); color: #fff; font-weight: 850; }
-.trip-card div { display: grid; gap: 3px; }
-.trip-card small { font-size: 9px; font-weight: 800; color: var(--orange); }
-.trip-card strong { max-width: 160px; font-size: 11px; line-height: 1.35; }
-.trip-card b { align-self: start; color: #888; font-size: 9px; font-weight: 500; }
-.place-card { position: absolute; z-index: 3; right: 32px; top: 42px; display: grid; gap: 3px; padding: 18px 20px; border-radius: 16px; background: rgba(255,255,255,.9); box-shadow: 0 10px 30px rgba(0,0,0,.14); }
-.place-card span { color: var(--orange); font-size: 9px; font-weight: 800; letter-spacing: .12em; }
-.place-card strong { font-size: 23px; letter-spacing: -.04em; }
-.place-card small { color: #666; font-size: 11px; }
 .motion-plane {
   position: absolute;
   z-index: 6;
@@ -495,9 +473,8 @@ img { object-fit: cover; }
   .hero { height: auto; min-height: 820px; grid-template-columns: 1fr; grid-template-rows: auto 390px; border-radius: 0 0 34px 34px; }
   .hero-copy { padding: 55px 24px 55px; }
   .hero h1 { font-size: clamp(49px, 12vw, 68px); }
-  .hero-visual::before { background: linear-gradient(180deg, #fff 0%, transparent 14%); }
-  .place-card { right: 18px; top: 24px; }
-  .trip-card { left: 20px; top: auto; bottom: 25px; }
+  .hero-device-stage::before { background: linear-gradient(180deg,#fff 0%,rgba(255,255,255,.7) 8%,transparent 22%); }
+  .hero-phone-wrap { bottom: -105px; width: min(290px,72%); }
   .hero-rings { left: -65px; bottom: -135px; }
   .hero-plane { top: 70%; }
   .plane-glyph { font-size: 47px; }
@@ -545,12 +522,11 @@ img { object-fit: cover; }
   .main-nav { padding: 13px 20px 24px; }
   .hero { grid-template-rows: auto 350px; }
   .hero-copy { padding-top: 38px; }
+  .hero-phone-wrap { bottom: -112px; width: min(245px,70%); }
   .hero h1 { font-size: clamp(45px, 14vw, 60px); }
   .hero-lead { margin-block: 22px 26px; font-size: 16px; }
   .button-row { align-items: stretch; }
   .button-row .pill { flex: 1 1 100%; }
-  .place-card { display: none; }
-  .trip-card { width: calc(100% - 40px); }
   .trust-inner h2 { font-size: 21px; }
   .trust-items strong { font-size: 26px; }
   .center-heading h2, .solution-intro h2, .platform-copy h2, .stories h2, .number-lead h2 { font-size: 39px; }

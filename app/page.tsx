@@ -70,26 +70,25 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="hero-visual">
-          <Image
-            src="/hero-zanzibar.jpg"
-            alt="Turquoise island resort surrounded by ocean"
-            fill
-            unoptimized
-            priority
-            sizes="(max-width: 800px) 100vw, 55vw"
-          />
+        <div className="hero-visual hero-device-stage">
+          <motion.div
+            className="hero-phone-wrap"
+            initial={false}
+            animate={reduceMotion ? undefined : { y: [0, -10, 0] }}
+            transition={{ duration: 5.5, ease: "easeInOut", repeat: Infinity }}
+          >
+            <Image
+              className="hero-phone"
+              src="/hero-phone-transparent.png"
+              alt="3D smartphone showing a travel planning app"
+              width={643}
+              height={1217}
+              unoptimized
+              priority
+              sizes="(max-width: 560px) 245px, (max-width: 820px) 290px, 420px"
+            />
+          </motion.div>
           <div className="hero-rings" aria-hidden="true"><i /><i /><i /></div>
-          <div className="trip-card">
-            <span className="trip-card-icon">T</span>
-            <div><small>TVSE TRAVEL</small><strong>Your island itinerary is ready.</strong></div>
-            <b>Now</b>
-          </div>
-          <div className="place-card">
-            <span>FEATURED ESCAPE</span>
-            <strong>Zanzibar</strong>
-            <small>6 nights · beach & culture</small>
-          </div>
         </div>
         <motion.div
           className="motion-plane hero-plane"

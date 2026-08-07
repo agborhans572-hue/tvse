@@ -29,6 +29,9 @@ test("server-renders the TVSE travel experience", async () => {
   assert.match(html, /airlines\/kenya-airways\.svg/);
   assert.match(html, /airlines\/emirates\.svg/);
   assert.match(html, /airline-marquee-track/);
+  for (const service of ["Accommodation", "Delivery services", "Ticketing", "Car rental services", "Safaris", "Airport transfers"]) {
+    assert.match(html, new RegExp(service, "i"));
+  }
   assert.doesNotMatch(html, /destinations in our current catalog/);
   assert.doesNotMatch(html, /Your island itinerary is ready|FEATURED ESCAPE/);
   assert.match(html, /Maasai Mara/);

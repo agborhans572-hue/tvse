@@ -190,8 +190,8 @@ img { object-fit: cover; }
   font-weight: 770;
 }
 .center-heading > p:last-child { max-width: 650px; margin: 22px auto 0; color: var(--muted); font-size: 16px; line-height: 1.65; }
-.service-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-.service-card { position: relative; height: 390px; overflow: hidden; border-radius: 22px; background: #151515; color: #fff; }
+.service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.service-card { position: relative; height: 360px; overflow: hidden; border-radius: 22px; background: #151515; color: #fff; }
 .service-card img { transition: transform .7s ease; }
 .service-card:hover img { transform: scale(1.04); }
 .service-shade { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(3,9,18,.88), rgba(3,9,18,.03) 72%); }
@@ -200,6 +200,10 @@ img { object-fit: cover; }
 .service-copy p { max-width: 440px; margin: 0 0 18px; color: rgba(255,255,255,.75); font-size: 13px; line-height: 1.5; }
 .service-copy a, .mini-solution a, .story-copy a { display: inline-flex; align-items: center; gap: 13px; font-size: 14px; font-weight: 760; }
 .service-copy a span, .mini-solution a span { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 50%; background: var(--purple); }
+
+@media (max-width: 1060px) {
+  .service-grid { grid-template-columns: repeat(2, 1fr); }
+}
 
 .solutions { max-width: 1020px; padding-top: 65px; }
 .raised-card { border-radius: 23px; background: #fff; box-shadow: 0 9px 30px rgba(26,33,55,.13); }

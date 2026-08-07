@@ -7,28 +7,40 @@ import { SiteFooter, SiteHeader } from "./components/SiteChrome";
 
 const services = [
   {
-    title: "Flights & stays",
-    text: "Handpicked routes and stays, coordinated from takeoff to check-in.",
-    image: "/cape-town.jpg",
-    href: "/solutions/booking-trip-management",
-  },
-  {
-    title: "Tailor-made holidays",
-    text: "One-of-a-kind trips shaped around your pace, people and priorities.",
-    image: "/santorini.jpg",
+    title: "Accommodation",
+    text: "Hotels, resorts and private stays selected around your comfort, location and budget.",
+    image: "/services/accommodation.png",
     href: "/packages",
   },
   {
-    title: "Safaris & escapes",
-    text: "Wild places, trusted hosts and the moments you will talk about for years.",
-    image: "/maasai-mara.jpg",
+    title: "Delivery services",
+    text: "Dependable local delivery coordination for travel documents, parcels and essential items.",
+    image: "/services/delivery.png",
+    href: "/contact?service=delivery",
+  },
+  {
+    title: "Ticketing",
+    text: "Flight research, reservations and ticket support for smooth regional and international travel.",
+    image: "/services/ticketing.png",
+    href: "/solutions/booking-trip-management",
+  },
+  {
+    title: "Car rental services",
+    text: "Flexible self-drive and chauffeured vehicles matched to your route, schedule and group size.",
+    image: "/services/car-rental.png",
+    href: "/plan-a-trip?service=car-rental",
+  },
+  {
+    title: "Safaris",
+    text: "Unforgettable wildlife journeys with trusted guides, thoughtful stays and seamless logistics.",
+    image: "/services/safari.png",
     href: "/destinations/maasai-mara",
   },
   {
-    title: "Corporate travel",
-    text: "Responsive travel support that keeps your people and plans moving.",
-    image: "/bali.jpg",
-    href: "/corporate",
+    title: "Airport transfers",
+    text: "Reliable pickups and drop-offs that keep arrivals, departures and connections stress-free.",
+    image: "/services/airport-transfer.png",
+    href: "/plan-a-trip?service=airport-transfer",
   },
 ];
 
@@ -169,14 +181,14 @@ export default function Home() {
       <section className="services shell section" id="services">
         <div className="center-heading">
           <p className="overline">Everything your journey needs</p>
-          <h2>Travel expertise that delivers.<br />Real people who make it easy.</h2>
-          <p>Thoughtful planning, trusted partners and calm support across every kind of trip.</p>
+          <h2>One trusted team.<br />Every travel service covered.</h2>
+          <p>From your first booking to your final transfer, TVSE coordinates the details that keep every journey moving.</p>
         </div>
 
         <div className="service-grid">
           {services.map((service) => (
             <article className="service-card" key={service.title}>
-              <Image src={service.image} alt="" fill unoptimized loading="eager" sizes="(max-width: 760px) 100vw, 50vw" />
+              <Image src={service.image} alt="" fill unoptimized sizes="(max-width: 820px) 100vw, (max-width: 1060px) 50vw, 33vw" />
               <div className="service-shade" />
               <div className="service-copy">
                 <h3>{service.title}</h3>

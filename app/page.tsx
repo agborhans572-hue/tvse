@@ -51,16 +51,16 @@ const stories = [
 ];
 
 const featuredAirlines = [
-  "Kenya Airways",
-  "Emirates",
-  "Qatar Airways",
-  "Ethiopian Airlines",
-  "Turkish Airlines",
-  "KLM",
-  "British Airways",
-  "RwandAir",
-  "Lufthansa",
-  "Air France",
+  { name: "Kenya Airways", logo: "/airlines/kenya-airways.svg" },
+  { name: "Emirates", logo: "/airlines/emirates.svg" },
+  { name: "Qatar Airways", logo: "/airlines/qatar-airways.svg" },
+  { name: "Ethiopian Airlines", logo: "/airlines/ethiopian-airlines.svg" },
+  { name: "Turkish Airlines", logo: "/airlines/turkish-airlines.svg" },
+  { name: "KLM", logo: "/airlines/klm.svg" },
+  { name: "British Airways", logo: "/airlines/british-airways.svg" },
+  { name: "RwandAir", logo: "/airlines/rwandair.svg" },
+  { name: "Lufthansa", logo: "/airlines/lufthansa.svg" },
+  { name: "Air France", logo: "/airlines/air-france.svg" },
 ];
 
 export default function Home() {
@@ -150,9 +150,14 @@ export default function Home() {
                 aria-hidden={copy === 1 ? true : undefined}
               >
                 {featuredAirlines.map((airline) => (
-                  <span key={`${copy}-${airline}`}>
-                    <i aria-hidden="true">&#9992;</i>
-                    {airline}
+                  <span className="airline-logo-card" key={`${copy}-${airline.name}`}>
+                    <Image
+                      src={airline.logo}
+                      alt={copy === 0 ? `${airline.name} logo` : ""}
+                      fill
+                      unoptimized
+                      sizes="190px"
+                    />
                   </span>
                 ))}
               </div>

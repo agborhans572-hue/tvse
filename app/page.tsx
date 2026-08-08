@@ -176,7 +176,6 @@ export default function Home() {
               sizes="(max-width: 560px) 180px, (max-width: 820px) 202px, 340px"
             />
           </motion.div>
-          <div className="hero-rings" aria-hidden="true"><i /><i /><i /></div>
         </div>
         <motion.div
           className="motion-plane hero-plane"

@@ -133,15 +133,10 @@ img { object-fit: cover; }
 .hero-visual { position: relative; height: 100%; overflow: hidden; }
 .hero-visual::before { content: ""; position: absolute; z-index: 1; inset: 0; background: linear-gradient(90deg, #fff 0%, transparent 13%), linear-gradient(0deg, rgba(10,28,41,.14), transparent 45%); }
 .hero-visual > img { object-position: 58% 50%; }
-.hero-device-stage { isolation: isolate; background: radial-gradient(circle at 65% 30%, rgba(87,52,255,.18), transparent 36%), linear-gradient(145deg,#f7f9ff 0%,#eaf0ff 58%,#fff1e9 100%); }
-.hero-device-stage::before { background: linear-gradient(90deg,#fff 0%,rgba(255,255,255,.78) 8%,transparent 24%),linear-gradient(0deg,rgba(32,47,61,.08),transparent 45%); }
+.hero-device-stage { isolation: isolate; background: #fff; }
+.hero-device-stage::before { background: none; }
 .hero-phone-wrap { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; width: min(340px,64%); margin-inline: auto; }
 .hero-phone { width: 100%; height: auto; display: block; object-fit: contain; object-position: center; filter: drop-shadow(0 28px 28px rgba(20,27,55,.28)); }
-.hero-rings { position: absolute; z-index: 2; left: -74px; bottom: -93px; width: 270px; height: 270px; border: 30px solid var(--orange); border-radius: 50%; }
-.hero-rings i { position: absolute; border: 24px solid var(--orange); border-radius: 50%; }
-.hero-rings i:nth-child(1) { inset: 25px; }
-.hero-rings i:nth-child(2) { inset: 79px; }
-.hero-rings i:nth-child(3) { inset: 132px; background: var(--orange); }
 .motion-plane {
   position: absolute;
   z-index: 6;
@@ -491,9 +486,8 @@ img { object-fit: cover; }
   .hero { height: auto; min-height: 820px; grid-template-columns: 1fr; grid-template-rows: auto 390px; border-radius: 0 0 34px 34px; }
   .hero-copy { padding: 55px 24px 55px; }
   .hero h1 { font-size: clamp(49px, 12vw, 68px); }
-  .hero-device-stage::before { background: linear-gradient(180deg,#fff 0%,rgba(255,255,255,.7) 8%,transparent 22%); }
+  .hero-device-stage::before { background: none; }
   .hero-phone-wrap { bottom: 0; width: min(202px,54%); }
-  .hero-rings { left: -65px; bottom: -135px; }
   .hero-plane { top: 70%; }
   .plane-glyph { font-size: 47px; }
   .flight-trail { width: 105px; right: 41px; height: 5px; }

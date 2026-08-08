@@ -24,6 +24,7 @@ test("server-renders the TVSE travel experience", async () => {
   assert.match(html, /Made personal/);
   assert.match(html, /hero-device-stage/);
   assert.match(html, /hero-phone-transparent\.png/);
+  assert.doesNotMatch(html, /hero-rings/);
   assert.match(html, /Featured airlines/);
   assert.match(html, /Kenya Airways/);
   assert.match(html, /airlines\/kenya-airways\.svg/);

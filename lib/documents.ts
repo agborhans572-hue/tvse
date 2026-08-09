@@ -10,7 +10,7 @@ async function buildPdf(input: DocumentInput): Promise<Uint8Array> {
   const regular = await pdf.embedFont(StandardFonts.Helvetica); const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
   let brand: Awaited<ReturnType<typeof pdf.embedPng>> | null = null;
   try {
-    const response = await runtimeEnv.ASSETS?.fetch(new Request(new URL("/tvse-travel-agency-ltd-logo-transparent.png", publicBaseUrl())));
+    const response = await runtimeEnv.ASSETS?.fetch(new Request(new URL("/tvse-travel-globe-logo.png", publicBaseUrl())));
     if (response?.ok) brand = await pdf.embedPng(await response.arrayBuffer());
   } catch { /* Text fallback keeps documents available if static assets are unavailable. */ }
   let page = pdf.addPage([595, 842]); let y = 770;

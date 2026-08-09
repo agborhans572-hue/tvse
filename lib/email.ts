@@ -42,8 +42,8 @@ export async function sendTransactionalEmail(input: EmailInput): Promise<{ id: s
 
 function shell(title: string, body: string, actionLabel?: string, actionUrl?: string) {
   const action = actionLabel && actionUrl ? `<p style="margin:30px 0"><a href="${escapeHtml(actionUrl)}" style="background:#5734ff;color:#fff;padding:13px 22px;border-radius:999px;text-decoration:none;font-weight:700">${escapeHtml(actionLabel)} →</a></p>` : "";
-  const logo = `${publicBaseUrl()}/tvse-travel-agency-ltd-logo-transparent.png`;
-  return `<!doctype html><html><body style="margin:0;background:#f4f2f5;font-family:Arial,sans-serif;color:#121212"><div style="max-width:620px;margin:0 auto;padding:42px 24px"><div style="background:#fff;border-radius:24px;padding:38px"><img src="${escapeHtml(logo)}" alt="TVSE Travel Agency Ltd" width="210" style="display:block;max-width:100%;height:auto;margin-bottom:24px"><h1 style="font-size:32px;line-height:1.05">${escapeHtml(title)}</h1>${body}${action}<p style="margin-top:36px;color:#666;font-size:12px;line-height:1.6">TVSE Travel Agency Ltd · Nairobi, Kenya<br>This message relates to a TVSE travel request or account.</p></div></div></body></html>`;
+  const logo = `${publicBaseUrl()}/tvse-travel-globe-logo.png`;
+  return `<!doctype html><html><body style="margin:0;background:#f4f2f5;font-family:Arial,sans-serif;color:#121212"><div style="max-width:620px;margin:0 auto;padding:42px 24px"><div style="background:#fff;border-radius:24px;padding:38px"><img src="${escapeHtml(logo)}" alt="TVSE Travel Agency Ltd" width="126" style="display:block;max-width:100%;height:auto;margin-bottom:24px"><h1 style="font-size:32px;line-height:1.05">${escapeHtml(title)}</h1>${body}${action}<p style="margin-top:36px;color:#666;font-size:12px;line-height:1.6">TVSE Travel Agency Ltd · Nairobi, Kenya<br>This message relates to a TVSE travel request or account.</p></div></div></body></html>`;
 }
 
 export async function sendMagicLinkEmail(email: string, link: string, portal: string) {

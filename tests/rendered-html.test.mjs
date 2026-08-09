@@ -92,7 +92,7 @@ test("server-renders the public travel catalog and planning pages", async () => 
     ["/destinations/zanzibar", "A journey with room to become yours"],
     ["/packages", "Journeys with a head start"],
     ["/packages/zanzibar-culture-and-coast", "Personalize this journey"],
-    ["/plan-a-trip", "Tell us the idea"],
+    ["/plan-a-trip", "Every service, expertly arranged"],
     ["/corporate", "Business travel, made more human"],
     ["/about", "Travel feels better"],
     ["/faq", "A little clarity before takeoff"],

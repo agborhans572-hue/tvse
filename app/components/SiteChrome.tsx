@@ -106,7 +106,7 @@ export function SiteHeader() {
 
       <div className="header-actions">
         <Link className="search-link" href="/search" aria-label="Search TVSE destinations, packages and resources">⌕</Link>
-        <Link className="pill primary compact" href="/plan-a-trip">Get started</Link>
+        <Link className="pill primary compact" href="/plan-a-trip">Enquire now</Link>
         <button
           className="menu-toggle"
           type="button"

@@ -31,7 +31,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
       <div><p>{item.description}</p><dl><div><dt>Best time</dt><dd>{item.bestTime}</dd></div><div><dt>TVSE highlights</dt><dd>{item.highlights.join(" · ")}</dd></div></dl></div>
     </section>
     {packages.length > 0 && <section className="destination-package-band"><div className="shell"><p className="campaign-kicker">A PLACE TO START</p><h2>{packages[0].title}</h2><p>{packages[0].description}</p><strong>From {formatMoney(packages[0].fromPriceMinor, packages[0].currency)}</strong><Link className="pill white" href={`/packages/${packages[0].slug}`}>See the journey <span>→</span></Link></div></section>}
-    <section className="shell planner-section"><div className="planner-heading"><p className="campaign-kicker">MAKE IT PERSONAL</p><h2>Plan {item.name} with TVSE.</h2><p>Share the starting point. We will handle the possibilities.</p></div><TripPlanner defaultDestination={item.name} destinationSlug={item.slug} /></section>
+    <section className="shell planner-section"><div className="planner-heading"><p className="campaign-kicker">MAKE IT PERSONAL</p><h2>Plan {item.name} with TVSE.</h2><p>Share the starting point. We will handle the possibilities.</p></div><TripPlanner defaultDestination={item.name} defaultService="safaris" destinationSlug={item.slug} /></section>
     <SiteFooter />
   </main>;
 }

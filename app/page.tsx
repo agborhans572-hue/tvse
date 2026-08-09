@@ -10,19 +10,19 @@ const services = [
     title: "Accommodation",
     text: "Hotels, resorts and private stays selected around your comfort, location and budget.",
     image: "/services/accommodation.png",
-    href: "/packages",
+    href: "/plan-a-trip?service=accommodation",
   },
   {
     title: "Delivery services",
     text: "Dependable local delivery coordination for travel documents, parcels and essential items.",
     image: "/services/delivery.png",
-    href: "/contact?service=delivery",
+    href: "/plan-a-trip?service=delivery",
   },
   {
     title: "Ticketing",
     text: "Flight research, reservations and ticket support for smooth regional and international travel.",
     image: "/services/ticketing.png",
-    href: "/solutions/booking-trip-management",
+    href: "/plan-a-trip?service=ticketing",
   },
   {
     title: "Car rental services",
@@ -34,7 +34,7 @@ const services = [
     title: "Safaris",
     text: "Unforgettable wildlife journeys with trusted guides, thoughtful stays and seamless logistics.",
     image: "/services/safari.png",
-    href: "/destinations/maasai-mara",
+    href: "/plan-a-trip?service=safaris",
   },
   {
     title: "Airport transfers",
@@ -128,7 +128,7 @@ function ServiceMoment({ moment }: { moment: (typeof serviceMoments)[number] }) 
               <h3>{service.title}</h3>
               <p>{service.text}</p>
               <Link href={service.href} aria-label={`Learn more about ${service.title}`}>
-                Explore service <b aria-hidden="true">&#8594;</b>
+                Enquire now <b aria-hidden="true">&#8594;</b>
               </Link>
             </div>
           </article>

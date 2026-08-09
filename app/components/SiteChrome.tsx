@@ -173,6 +173,29 @@ export function SiteFooter() {
           <Link href="/support">Traveler support</Link>
         </div>
       </div>
+      <section className="footer-members shell" aria-labelledby="footer-members-title">
+        <div className="footer-members-heading">
+          <div>
+            <span>TRUSTED TRAVEL NETWORK</span>
+            <h3 id="footer-members-title">Memberships &amp; affiliations</h3>
+          </div>
+          <p>Connected to the organizations that help keep travel professional, dependable and responsible.</p>
+        </div>
+        <div className="footer-member-grid">
+          <div className="footer-member-logo member-kata">
+            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations.png" alt="Kenya Association of Travel Agents (KATA)" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
+          </div>
+          <div className="footer-member-logo member-iata">
+            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations.png" alt="International Air Transport Association (IATA)" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
+          </div>
+          <div className="footer-member-logo member-kato">
+            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations.png" alt="Kenya Association of Tour Operators (KATO)" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
+          </div>
+          <div className="footer-member-logo member-kws">
+            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations.png" alt="Kenya Wildlife Service" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
+          </div>
+        </div>
+      </section>
       <div className="footer-bottom shell">
         <span>© 2026 TVSE Travel Agency Ltd.</span>
         <div><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link><a href="#top">Back to top ↑</a></div>

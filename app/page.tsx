@@ -160,20 +160,20 @@ export default function Home() {
 
         <div className="hero-visual hero-device-stage">
           <motion.div
-            className="hero-phone-wrap"
+            className="hero-showcase-wrap"
             initial={false}
-            animate={reduceMotion ? undefined : { y: [0, -6, 0] }}
+            animate={reduceMotion ? undefined : { y: [0, -7, 0], rotate: [0, -0.35, 0] }}
             transition={{ duration: 5.5, ease: "easeInOut", repeat: Infinity }}
           >
             <Image
-              className="hero-phone"
-              src="/hero-phone-cutout.png"
-              alt="Front-facing smartphone showing a travel planning app"
-              width={862}
-              height={1825}
+              className="hero-showcase"
+              src="/hero-travel-concierge.png"
+              alt="Traveller checking a TVSE flight booking beside a mobile travel itinerary"
+              width={1328}
+              height={1184}
               unoptimized
               priority
-              sizes="(max-width: 560px) 180px, (max-width: 820px) 202px, 335px"
+              sizes="(max-width: 560px) 108vw, (max-width: 820px) 620px, 760px"
             />
           </motion.div>
         </div>

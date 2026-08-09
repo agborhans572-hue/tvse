@@ -167,13 +167,13 @@ export default function Home() {
           >
             <Image
               className="hero-phone"
-              src="/hero-phone-transparent.png"
-              alt="3D smartphone showing a travel planning app"
-              width={643}
-              height={1217}
+              src="/hero-phone-front.png"
+              alt="Front-facing smartphone showing a travel planning app"
+              width={862}
+              height={1824}
               unoptimized
               priority
-              sizes="(max-width: 560px) 180px, (max-width: 820px) 202px, 340px"
+              sizes="(max-width: 560px) 180px, (max-width: 820px) 202px, 335px"
             />
           </motion.div>
         </div>

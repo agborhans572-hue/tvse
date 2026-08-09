@@ -167,10 +167,10 @@ export default function Home() {
           >
             <Image
               className="hero-phone"
-              src="/hero-phone-front.png"
+              src="/hero-phone-cutout.png"
               alt="Front-facing smartphone showing a travel planning app"
               width={862}
-              height={1824}
+              height={1825}
               unoptimized
               priority
               sizes="(max-width: 560px) 180px, (max-width: 820px) 202px, 335px"

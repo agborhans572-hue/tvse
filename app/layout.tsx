@@ -36,7 +36,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     "@type": "TravelAgency",
     name: "TVSE Travel Agency Ltd",
     url: "https://tvse-travel.agborhans572.chatgpt.site",
-    logo: "https://tvse-travel.agborhans572.chatgpt.site/tvse-logo-3d.png",
+    logo: "https://tvse-travel.agborhans572.chatgpt.site/tvse-travel-globe-logo.png",
     email: "hello@tvsetravel.com",
     address: { "@type": "PostalAddress", addressLocality: "Nairobi", addressCountry: "KE" },
     areaServed: ["Kenya", "Africa", "Worldwide"],

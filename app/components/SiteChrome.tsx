@@ -74,7 +74,7 @@ export function SiteHeader() {
             fill
             unoptimized
             priority
-            sizes="(max-width: 560px) 67px, (max-width: 820px) 78px, (max-width: 1060px) 93px, 117px"
+            sizes="(max-width: 560px) 74px, (max-width: 820px) 84px, (max-width: 1060px) 105px, 132px"
           />
         </motion.span>
       </Link>
@@ -140,7 +140,7 @@ export function SiteFooter() {
               whileHover={reduceMotion ? undefined : { scale: 1.08, rotateX: -7, rotateY: 10, y: -2 }}
               transition={{ type: "spring", stiffness: 260, damping: 18 }}
             >
-              <Image src="/tvse-travel-globe-logo.png" alt="" fill unoptimized sizes="(max-width: 560px) 101px, 110px" />
+              <Image src="/tvse-travel-globe-logo.png" alt="" fill unoptimized sizes="(max-width: 560px) 110px, 120px" />
             </motion.span>
           </Link>
           <p>People-first travel design for holidays, business trips and unforgettable escapes - from Nairobi to the world.</p>

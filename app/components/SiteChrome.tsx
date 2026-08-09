@@ -69,7 +69,7 @@ export function SiteHeader() {
           transition={{ type: "spring", stiffness: 260, damping: 18 }}
         >
           <Image
-            src="/tvse-travel-globe-logo.png"
+            src="/tvse-header-logo.png"
             alt=""
             fill
             unoptimized

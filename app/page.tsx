@@ -167,10 +167,10 @@ export default function Home() {
           >
             <Image
               className="hero-showcase"
-              src="/hero-travel-concierge.png"
+              src="/hero-travel-concierge-clean-v2.png"
               alt="Traveller checking a TVSE flight booking beside a mobile travel itinerary"
-              width={1328}
-              height={1184}
+              width={1329}
+              height={1183}
               unoptimized
               priority
               sizes="(max-width: 560px) 108vw, (max-width: 820px) 620px, 760px"

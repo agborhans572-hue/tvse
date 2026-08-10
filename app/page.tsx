@@ -169,9 +169,9 @@ export default function Home() {
           >
             <Image
               className="hero-showcase"
-              src="/hero-travel-concierge-glass-card.png"
+              src="/hero-travel-concierge-natural.png"
               alt="Traveller checking a TVSE flight booking beside a mobile travel itinerary"
-              width={1329}
+              width={1330}
               height={1183}
               unoptimized
               priority

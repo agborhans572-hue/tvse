@@ -48,7 +48,7 @@ const serviceMoments = [
     start: 3,
     overline: "From arrival to adventure",
     title: "Land smoothly. Follow the wild.",
-    text: "Reliable airport transfers and thoughtfully planned safaris keep every connection effortless and every experience memorable.",
+    text: "",
     items: [services[3], services[2]],
   },
 ];

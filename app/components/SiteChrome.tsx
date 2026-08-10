@@ -143,7 +143,6 @@ export function SiteFooter() {
               <Image src="/tvse-travel-globe-logo.png" alt="" fill unoptimized sizes="(max-width: 560px) 110px, 120px" />
             </motion.span>
           </Link>
-          <p>People-first travel design for holidays, business trips and unforgettable escapes - from Nairobi to the world.</p>
           {(contactLinks.linkedin || contactLinks.instagram || contactLinks.facebook) && <div className="socials" aria-label="Social media">{contactLinks.linkedin&&<a href={contactLinks.linkedin} rel="noreferrer" target="_blank">in</a>}{contactLinks.instagram&&<a href={contactLinks.instagram} rel="noreferrer" target="_blank">ig</a>}{contactLinks.facebook&&<a href={contactLinks.facebook} rel="noreferrer" target="_blank">f</a>}</div>}
         </div>
         <div>
@@ -179,7 +178,6 @@ export function SiteFooter() {
             <span>TRUSTED TRAVEL NETWORK</span>
             <h3 id="footer-members-title">Memberships &amp; affiliations</h3>
           </div>
-          <p>Connected to the organizations that help keep travel professional, dependable and responsible.</p>
         </div>
         <div className="footer-member-grid">
           <div className="footer-member-logo member-kata">

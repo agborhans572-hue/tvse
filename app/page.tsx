@@ -21,7 +21,7 @@ const services = [
   {
     title: "Ticketing",
     text: "Flight research, reservations and ticket support for smooth regional and international travel.",
-    image: "/services/ticketing.png",
+    image: "/services/ticketing-google.jpg",
     href: "/plan-a-trip?service=ticketing",
   },
   {

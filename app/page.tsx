@@ -62,7 +62,7 @@ const stories = [
   {
     kicker: "WILD AFRICA",
     title: "Golden-hour game drives in the Maasai Mara",
-    image: "/maasai-mara.jpg",
+    image: "/stories/wild-africa-tvse.jpg",
   },
   {
     kicker: "CITY & COAST",

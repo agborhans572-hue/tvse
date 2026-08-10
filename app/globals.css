@@ -203,7 +203,7 @@ img { object-fit: cover; }
 .service-feature-copy a { color: #063e69; }
 .service-feature-copy a b { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 50%; background: #063e69; color: #fff; font-size: 17px; font-weight: 500; }
 .mini-solution a span { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 50%; background: var(--purple); }
-.service-moment--tint { padding-block: 96px; border-radius: 48px; background: #edf3f5; }
+.service-moment--tint { padding-block: 96px; border-radius: 0; background: #fff; }
 .service-moment--tint .overline { color: var(--green); }
 .service-moment--offset .service-feature-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
 .service-moment--offset .service-feature-card:last-child { margin-top: 64px; }

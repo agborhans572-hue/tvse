@@ -39,7 +39,7 @@ const services = [
   {
     title: "Airport transfers",
     text: "Reliable pickups and drop-offs that keep arrivals, departures and connections stress-free.",
-    image: "/services/safari-tvse.jpg",
+    image: "/services/airport-transfer-google.jpg",
     href: "/plan-a-trip?service=airport-transfer",
   },
 ];

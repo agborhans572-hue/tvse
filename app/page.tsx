@@ -141,25 +141,6 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="hero-visual hero-device-stage">
-          <motion.div
-            className="hero-showcase-wrap"
-            initial={false}
-            animate={reduceMotion ? undefined : { y: [0, -7, 0], rotate: [0, -0.35, 0] }}
-            transition={{ duration: 5.5, ease: "easeInOut", repeat: Infinity }}
-          >
-            <Image
-              className="hero-showcase"
-              src="/hero-travel-concierge-natural.png"
-              alt="Traveller checking a TVSE flight booking beside a mobile travel itinerary"
-              width={1330}
-              height={1183}
-              unoptimized
-              priority
-              sizes="(max-width: 560px) 108vw, (max-width: 820px) 620px, 760px"
-            />
-          </motion.div>
-        </div>
         <motion.div
           className="motion-plane hero-plane"
           aria-hidden="true"

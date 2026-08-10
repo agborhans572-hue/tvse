@@ -183,16 +183,16 @@ export function SiteFooter() {
         </div>
         <div className="footer-member-grid">
           <div className="footer-member-logo member-kata">
-            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations.png" alt="Kenya Association of Travel Agents (KATA)" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
+            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations-transparent.png" alt="Kenya Association of Travel Agents (KATA)" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
           </div>
           <div className="footer-member-logo member-iata">
-            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations.png" alt="International Air Transport Association (IATA)" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
+            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations-transparent.png" alt="International Air Transport Association (IATA)" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
           </div>
           <div className="footer-member-logo member-kato">
-            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations.png" alt="Kenya Association of Tour Operators (KATO)" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
+            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations-transparent.png" alt="Kenya Association of Tour Operators (KATO)" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
           </div>
           <div className="footer-member-logo member-kws">
-            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations.png" alt="Kenya Wildlife Service" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
+            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations-transparent.png" alt="Kenya Wildlife Service" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
           </div>
         </div>
       </section>

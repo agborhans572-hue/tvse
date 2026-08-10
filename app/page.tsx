@@ -122,7 +122,9 @@ function ServiceMoment({ moment }: { moment: (typeof serviceMoments)[number] }) 
       <div className="shell service-feature-grid">
         {moment.items.map((service, index) => (
           <article className="service-feature-card" key={service.title}>
-            <Image src={service.image} alt="" fill unoptimized sizes="(max-width: 820px) 100vw, 50vw" />
+            <div className="service-feature-image">
+              <Image src={service.image} alt="" fill unoptimized sizes="(max-width: 820px) 100vw, 50vw" />
+            </div>
             <div className="service-feature-copy">
               <span className="service-index">0{moment.start + index}</span>
               <h3>{service.title}</h3>

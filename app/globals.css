@@ -192,7 +192,7 @@ img { object-fit: cover; }
 .service-moment-heading > p { max-width: 440px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.7; }
 .service-feature-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: clamp(28px,4vw,58px); align-items: start; }
 .service-feature-card { min-width: 0; background: transparent; color: var(--ink); }
-.service-feature-image { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #e8ecec; }
+.service-feature-image { position: relative; aspect-ratio: 3 / 2; overflow: hidden; background: #e8ecec; }
 .service-feature-card img { transition: transform .75s ease; }
 .service-feature-card:hover img { transform: scale(1.035); }
 .service-feature-copy { padding: 27px 2px 4px; }

@@ -67,7 +67,7 @@ const stories = [
   {
     kicker: "CITY & COAST",
     title: "Cape Town, from mountain mornings to coastal nights",
-    image: "/cape-town.jpg",
+    image: "/stories/cape-town-tvse.jpg",
   },
 ];
 

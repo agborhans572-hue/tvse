@@ -33,7 +33,7 @@ const services = [
   {
     title: "Safaris",
     text: "Unforgettable wildlife journeys with trusted guides, thoughtful stays and seamless logistics.",
-    image: "/services/safari.png",
+    image: "/services/safari-tvse.jpg",
     href: "/plan-a-trip?service=safaris",
   },
   {

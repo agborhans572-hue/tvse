@@ -84,7 +84,9 @@ const featuredAirlines = [
   { name: "Air France", logo: "/airlines/air-france.svg" },
 ];
 
-function ServiceMoment({ moment }: { moment: (typeof serviceMoments)[number] }) {
+function ServiceMoment({ moment }: { moment: (typeof serviceMoments)[number] | undefined }) {
+  if (!moment) return null;
+
   return (
     <section
       className={`service-moment service-moment--${moment.theme}${moment.theme === "tint" ? " shell-wide" : ""}`}
@@ -324,8 +326,6 @@ export default function Home() {
         </div>
         <Link className="pill primary story-button" href="/destinations">View all destinations <span>→</span></Link>
       </section>
-
-      <ServiceMoment moment={serviceMoments[2]} />
 
       <section className="specialist shell" aria-labelledby="specialist-title">
         <div className="specialist-copy">

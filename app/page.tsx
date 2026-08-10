@@ -39,7 +39,7 @@ const serviceMoments = [
     start: 1,
     overline: "Begin with the essentials",
     title: "Stay beautifully. Fly confidently.",
-    text: "Thoughtful accommodation and expert ticketing give every journey a smooth beginning.",
+      text: "",
     items: [services[0], services[1]],
   },
   {
@@ -98,7 +98,7 @@ function ServiceMoment({ moment }: { moment: (typeof serviceMoments)[number] | u
           <p className="overline">{moment.overline}</p>
           <h2 id={`${moment.id}-title`}>{moment.title}</h2>
         </div>
-        <p>{moment.text}</p>
+        {moment.text ? <p>{moment.text}</p> : null}
       </div>
       <div className="shell service-feature-grid">
         {moment.items.map((service, index) => (

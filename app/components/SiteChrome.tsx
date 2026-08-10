@@ -166,7 +166,7 @@ export function SiteFooter() {
         <div>
           <h3>Contact</h3>
           <a href="mailto:hello@tvsetravel.com">hello@tvsetravel.com</a>
-          <span>Nairobi, Kenya</span>
+          <span>Jimkan House, Woodvale Grove, Nairobi</span>
           <span>Mon-Fri · 8am-6pm</span>
           <Link href="/login/traveler">Traveler portal</Link>
           <Link href="/support">Traveler support</Link>

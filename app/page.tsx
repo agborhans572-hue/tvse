@@ -9,7 +9,7 @@ const services = [
   {
     title: "Accommodation",
     text: "Hotels, resorts and private stays selected around your comfort, location and budget.",
-    image: "/services/accommodation.png",
+    image: "/services/accommodation-tvse.jpg",
     href: "/plan-a-trip?service=accommodation",
   },
   {

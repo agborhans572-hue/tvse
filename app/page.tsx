@@ -176,7 +176,6 @@ export default function Home() {
               <p className="airline-marquee-kicker">Featured airlines</p>
               <h2 id="airline-marquee-title">Travel designed around you, supported all the way</h2>
             </div>
-            <p>Explore route possibilities across leading regional and international carriers.</p>
           </div>
         </div>
         <div className="airline-marquee" aria-label="Featured airlines">

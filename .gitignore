@@ -32,6 +32,11 @@ yarn-error.log*
 .env*
 !.env.example
 
+# Cloudflare local secrets and state
+.dev.vars
+**/.dev.vars
+**/.wrangler/
+
 # vercel
 .vercel
 
@@ -45,3 +50,4 @@ next-env.d.ts
 /.devserver.*.log
 /.codex-run/
 *.tsbuildinfo
+/.scale-fixtures/

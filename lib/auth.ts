@@ -4,16 +4,17 @@ import type { NextResponse } from "next/server";
 import { getD1 } from "../db";
 import { chatGPTSignInPath, getChatGPTUser } from "../app/chatgpt-auth";
 import { createId, randomToken, sha256 } from "./ids";
-import { publicBaseUrl, runtimeEnv } from "./runtime";
+import { insecureLocalDevelopmentAllowed, publicBaseUrl, runtimeEnv } from "./runtime";
 import type { Actor, Role } from "./travel";
 import { internalRoles, isInternalRole } from "./travel";
+import { isOrganizationRole, isOrganizationRoleCompatible } from "./authorization";
 import { sendMagicLinkEmail } from "./email";
 
 const SESSION_COOKIE = "tvse_session";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const MAGIC_LINK_TTL_MS = 15 * 60 * 1000;
 
-type UserRow = { id: string; email: string; full_name: string | null; role: Role; status: string; platform_user_id: string | null; organization_id?: string | null };
+type UserRow = { id: string; email: string; full_name: string | null; role: Role; status: string; platform_user_id: string | null; organization_id?: string | null; organization_type?: string | null; organization_status?: string | null; membership_role?: string | null; auth_version?: number };
 
 export async function getActor(): Promise<Actor | null> {
   const platformUser = await getChatGPTUser();
@@ -28,30 +29,34 @@ export async function getActor(): Promise<Actor | null> {
   const hash = await sha256(token);
   const now = Date.now();
   const row = await getD1().prepare(`
-    SELECT u.id, u.email, u.full_name, u.role, u.status, u.platform_user_id,
-      (SELECT organization_id FROM memberships WHERE user_id = u.id ORDER BY created_at LIMIT 1) AS organization_id
+    SELECT u.id, u.email, u.full_name, u.role, u.status, u.platform_user_id, u.auth_version,
+      m.organization_id, m.role AS membership_role, o.type AS organization_type, o.status AS organization_status
     FROM sessions s JOIN users u ON u.id = s.user_id
+    LEFT JOIN memberships m ON m.user_id = u.id
+    LEFT JOIN organizations o ON o.id = m.organization_id
     WHERE s.token_hash = ? AND s.expires_at > ? AND u.status = 'active'
   `).bind(hash, now).first<UserRow>();
   if (!row) return null;
-  return { id: row.id, email: row.email, fullName: row.full_name, role: row.role, organizationId: row.organization_id ?? null, source: "magic_link" };
+  if (isOrganizationRole(row.role) && (!row.organization_id || row.organization_status !== "active" || !isOrganizationRoleCompatible(row.role, row.organization_type))) return null;
+  return { id: row.id, email: row.email, fullName: row.full_name, role: row.role, organizationId: row.organization_id ?? null, source: "magic_link", authVersion: row.auth_version ?? 1 };
 }
 
 async function staffActor(platformUserId: string, email: string, fullName: string | null): Promise<Actor | null> {
+  if (runtimeEnv.TRUST_OPENAI_AUTH_HEADERS !== "true") return null;
   const db = getD1();
   const normalizedEmail = email.trim().toLowerCase();
   const adminEmails = (runtimeEnv.TVSE_ADMIN_EMAILS ?? "").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
-  let row = await db.prepare("SELECT id, email, full_name, role, status, platform_user_id FROM users WHERE platform_user_id = ? OR email = ? LIMIT 1").bind(platformUserId, normalizedEmail).first<UserRow>();
+  let row = await db.prepare("SELECT id, email, full_name, role, status, platform_user_id, auth_version FROM users WHERE platform_user_id = ? OR email = ? LIMIT 1").bind(platformUserId, normalizedEmail).first<UserRow>();
   if (!row && adminEmails.includes(normalizedEmail)) {
     const id = createId("usr"); const now = Date.now();
     await db.prepare("INSERT INTO users (id, email, full_name, kind, role, status, platform_user_id, created_at, updated_at) VALUES (?, ?, ?, 'staff', 'owner', 'active', ?, ?, ?)")
       .bind(id, normalizedEmail, fullName, platformUserId, now, now).run();
-    row = { id, email: normalizedEmail, full_name: fullName, role: "owner", status: "active", platform_user_id: platformUserId };
+    row = { id, email: normalizedEmail, full_name: fullName, role: "owner", status: "active", platform_user_id: platformUserId, auth_version: 1 };
   } else if (row && isInternalRole(row.role) && row.platform_user_id !== platformUserId) {
     await db.prepare("UPDATE users SET platform_user_id = ?, full_name = COALESCE(?, full_name), updated_at = ? WHERE id = ?").bind(platformUserId, fullName, Date.now(), row.id).run();
   }
   if (!row || row.status !== "active" || !isInternalRole(row.role)) return null;
-  return { id: row.id, email: row.email, fullName: row.full_name, role: row.role, source: "platform" };
+  return { id: row.id, email: row.email, fullName: row.full_name, role: row.role, source: "platform", authVersion: row.auth_version ?? 1 };
 }
 
 export async function requirePageActor(area: "portal" | "business" | "partner" | "staff"): Promise<Actor> {
@@ -81,14 +86,18 @@ export function authorize(actor: Actor | null, roles: Role[]): Actor {
 export class AuthError extends Error { status:401|403;constructor(message: string,status: 401 | 403) { super(message);this.status=status; } }
 
 export async function issueMagicLink(email: string, portal: "traveler" | "business" | "partner", returnTo: string, request: Request) {
+  const baseUrl=publicBaseUrl(request);
   const db = getD1();
   const normalizedEmail = email.trim().toLowerCase();
   const now = Date.now();
   const recent = await db.prepare("SELECT COUNT(*) AS count FROM magic_links WHERE email = ? AND created_at > ?").bind(normalizedEmail, now - 15 * 60 * 1000).first<{ count: number }>();
   if ((recent?.count ?? 0) >= 5) return { accepted: true, debugLink: null };
   const expectedRoles: Record<typeof portal, Role[]> = { traveler: ["traveler"], business: ["corporate_requester", "corporate_approver"], partner: ["partner"] };
-  const existing = await db.prepare("SELECT id, role FROM users WHERE email = ? AND status IN ('active','invited')").bind(normalizedEmail).first<{ id: string; role: Role }>();
+  const existing = await db.prepare(`SELECT u.id,u.role,m.organization_id,o.type AS organization_type,o.status AS organization_status
+    FROM users u LEFT JOIN memberships m ON m.user_id=u.id LEFT JOIN organizations o ON o.id=m.organization_id
+    WHERE u.email=? AND u.status IN ('active','invited') LIMIT 1`).bind(normalizedEmail).first<{ id: string; role: Role; organization_id: string | null; organization_type: string | null; organization_status: string | null }>();
   if (existing && !expectedRoles[portal].includes(existing.role)) return { accepted: true, debugLink: null };
+  if (existing && isOrganizationRole(existing.role) && (!existing.organization_id || existing.organization_status !== "active" || !isOrganizationRoleCompatible(existing.role, existing.organization_type))) return { accepted: true, debugLink: null };
   if (portal !== "traveler" && !existing) return { accepted: true, debugLink: null };
 
   const token = randomToken(32); const tokenHash = await sha256(token); const id = createId("ml");
@@ -98,9 +107,9 @@ export async function issueMagicLink(email: string, portal: "traveler" | "busine
   const safeReturn = safeReturnTo(returnTo, portal);
   await db.prepare("INSERT INTO magic_links (id, email, token_hash, intended_role, return_to, expires_at, request_ip_hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
     .bind(id, normalizedEmail, tokenHash, portal, safeReturn, now + MAGIC_LINK_TTL_MS, ipHash, now).run();
-  const link = `${publicBaseUrl(request)}/api/auth/verify?token=${encodeURIComponent(token)}`;
+  const link = `${baseUrl}/api/auth/verify?token=${encodeURIComponent(token)}`;
   await sendMagicLinkEmail(normalizedEmail, link, portal);
-  const localDebug = !runtimeEnv.RESEND_API_KEY && publicBaseUrl(request).includes("localhost") ? link : null;
+  const localDebug = !runtimeEnv.RESEND_API_KEY && insecureLocalDevelopmentAllowed(new URL(request.url).hostname) ? link : null;
   return { accepted: true, debugLink: localDebug };
 }
 
@@ -112,13 +121,18 @@ export async function consumeMagicLink(token: string): Promise<{ sessionToken: s
   if (!link) throw new Error("This sign-in link is invalid or has expired");
   const consumed = await db.prepare("UPDATE magic_links SET used_at = ? WHERE id = ? AND used_at IS NULL").bind(now, link.id).run();
   if ((consumed.meta?.changes ?? 0) !== 1) throw new Error("This sign-in link has already been used");
-  let user = await db.prepare("SELECT id, role, status FROM users WHERE email = ?").bind(link.email).first<{ id: string; role: Role; status: string }>();
+  let user = await db.prepare(`SELECT u.id,u.role,u.status,m.organization_id,o.type AS organization_type,o.status AS organization_status
+    FROM users u LEFT JOIN memberships m ON m.user_id=u.id LEFT JOIN organizations o ON o.id=m.organization_id
+    WHERE u.email=? LIMIT 1`).bind(link.email).first<{ id: string; role: Role; status: string; organization_id: string | null; organization_type: string | null; organization_status: string | null }>();
   if (!user && link.intended_role === "traveler") {
     const id = createId("usr");
     await db.prepare("INSERT INTO users (id, email, kind, role, status, created_at, updated_at) VALUES (?, ?, 'traveler', 'traveler', 'active', ?, ?)").bind(id, link.email, now, now).run();
-    user = { id, role: "traveler", status: "active" };
+    user = { id, role: "traveler", status: "active", organization_id: null, organization_type: null, organization_status: null };
   }
   if (!user || !["active", "invited"].includes(user.status)) throw new Error("This account is not available");
+  const expectedRoles: Record<typeof link.intended_role, Role[]> = { traveler: ["traveler"], business: ["corporate_requester", "corporate_approver"], partner: ["partner"] };
+  if (!expectedRoles[link.intended_role].includes(user.role)) throw new Error("This account is not available");
+  if (isOrganizationRole(user.role) && (!user.organization_id || user.organization_status !== "active" || !isOrganizationRoleCompatible(user.role, user.organization_type))) throw new Error("This account is not available");
   const sessionToken = randomToken(32); const sessionHash = await sha256(sessionToken);
   await db.prepare("INSERT INTO sessions (id, user_id, token_hash, expires_at, last_seen_at, created_at) VALUES (?, ?, ?, ?, ?, ?)")
     .bind(createId("ses"), user.id, sessionHash, now + SESSION_TTL_MS, now, now).run();
@@ -132,7 +146,13 @@ export function setSessionCookie(response: NextResponse, token: string) {
 
 export async function revokeSession(): Promise<void> {
   const store = await cookies(); const token = store.get(SESSION_COOKIE)?.value;
-  if (token) await getD1().prepare("DELETE FROM sessions WHERE token_hash = ?").bind(await sha256(token)).run();
+  if (token) {
+    const db=getD1();const hash=await sha256(token);const session=await db.prepare("SELECT user_id FROM sessions WHERE token_hash=?").bind(hash).first<{user_id:string}>();
+    await db.batch([
+      db.prepare("DELETE FROM sessions WHERE token_hash=?").bind(hash),
+      db.prepare("UPDATE users SET auth_version=auth_version+1,updated_at=? WHERE id=?").bind(Date.now(),session?.user_id??""),
+    ]);
+  }
 }
 
 export function clearSessionCookie(response: NextResponse) { response.cookies.set(SESSION_COOKIE, "", { httpOnly: true, secure: publicBaseUrl().startsWith("https://"), sameSite: "lax", path: "/", maxAge: 0 }); }

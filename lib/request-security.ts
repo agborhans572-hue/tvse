@@ -1,6 +1,7 @@
 export class HttpError extends Error {
   status:number;
-  constructor(message:string,status:number){super(message);this.status=status;}
+  headers?: HeadersInit;
+  constructor(message:string,status:number,headers?:HeadersInit){super(message);this.status=status;this.headers=headers;}
 }
 
 export function assertSameOrigin(request: Request) {
@@ -18,4 +19,10 @@ export function idempotencyKey(request: Request): string | null {
   if (!value) return null;
   if (value.length < 8 || value.length > 200 || !/^[A-Za-z0-9._:-]+$/.test(value)) throw new HttpError("Invalid Idempotency-Key header", 400);
   return value;
+}
+
+export function requireIdempotencyKey(request: Request): string {
+  const key = idempotencyKey(request);
+  if (!key) throw new HttpError("A valid Idempotency-Key header is required", 400);
+  return key;
 }

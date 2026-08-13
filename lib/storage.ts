@@ -3,9 +3,11 @@ import { createId } from "./ids";
 import type { Actor } from "./travel";
 import { isInternalRole } from "./travel";
 import { can } from "./travel";
+import { canAccessResource } from "./authorization";
 import { signatureMatches } from "./file-signatures";
 
-const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]);
+const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
+const imageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 const maxBytes = 10 * 1024 * 1024;
 export type UploadEntityType = "profile" | "booking" | "support" | "content";
 
@@ -16,16 +18,20 @@ async function assertEntityAccess(actor: Actor, entityType: UploadEntityType, en
   }
   if (entityType === "content") {
     if (!can(actor.role, "manage_content")) throw new Error("Content permission required");
+    const row=await getD1().prepare("SELECT id FROM destinations WHERE id=? UNION ALL SELECT id FROM packages WHERE id=? UNION ALL SELECT id FROM content_entries WHERE id=? LIMIT 1").bind(entityId,entityId,entityId).first();
+    if(!row)throw new Error("Content record not found");
     return;
   }
   const db = getD1();
   if (entityType === "booking") {
+    if (isInternalRole(actor.role) && !can(actor.role, "manage_travel")) throw new Error("Booking upload permission required");
     const row = isInternalRole(actor.role)
       ? await db.prepare("SELECT id FROM bookings WHERE id=?").bind(entityId).first()
       : await db.prepare("SELECT id FROM bookings WHERE id=? AND (user_id=? OR organization_id=?)").bind(entityId, actor.id, actor.organizationId ?? "").first();
     if (!row) throw new Error("Booking not found");
     return;
   }
+  if (isInternalRole(actor.role) && !can(actor.role, "manage_travel")) throw new Error("Support upload permission required");
   const row = isInternalRole(actor.role)
     ? await db.prepare("SELECT id FROM support_tickets WHERE id=?").bind(entityId).first()
     : await db.prepare("SELECT id FROM support_tickets WHERE id=? AND (user_id=? OR organization_id=?)").bind(entityId, actor.id, actor.organizationId ?? "").first();
@@ -33,7 +39,8 @@ async function assertEntityAccess(actor: Actor, entityType: UploadEntityType, en
 }
 
 export async function saveUpload(file: File, actor: Actor, entityType: UploadEntityType, entityId: string, visibility: "private" | "public" = "private") {
-  if (!allowedTypes.has(file.type)) throw new Error("Only JPG, PNG, WebP, PDF and DOCX files are accepted");
+  if (!allowedTypes.has(file.type)) throw new Error("Only JPG, PNG, WebP, and PDF files are accepted");
+  if (visibility === "public" && !imageTypes.has(file.type)) throw new Error("Only validated images may be public");
   if (file.size <= 0 || file.size > maxBytes) throw new Error("Files must be 10 MB or smaller");
   await assertEntityAccess(actor, entityType, entityId, visibility);
   const bytes = new Uint8Array(await file.arrayBuffer());
@@ -53,7 +60,11 @@ export async function saveUpload(file: File, actor: Actor, entityType: UploadEnt
 export async function getAsset(id: string, actor: Actor | null) {
   const db = getD1(); const asset = await db.prepare("SELECT * FROM media_assets WHERE id=?").bind(id).first<Record<string, unknown>>();
   if (!asset) return null;
-  let permitted = asset.visibility === "public" || Boolean(actor && (asset.owner_user_id === actor.id || isInternalRole(actor.role)));
+  const publicImage = asset.visibility === "public" && imageTypes.has(String(asset.content_type));
+  let permitted = publicImage || Boolean(actor && asset.owner_user_id === actor.id);
+  if (!permitted && actor && asset.entity_type === "content") permitted = canAccessResource(actor.role, "content");
+  if (!permitted && actor && asset.entity_type === "booking" && isInternalRole(actor.role)) permitted = canAccessResource(actor.role, "bookings");
+  if (!permitted && actor && asset.entity_type === "support" && isInternalRole(actor.role)) permitted = canAccessResource(actor.role, "support");
   if (!permitted && actor && asset.entity_type === "booking") {
     const owned = await db.prepare("SELECT id FROM bookings WHERE id=? AND (user_id=? OR organization_id=?)").bind(asset.entity_id, actor.id, actor.organizationId ?? "").first(); permitted = Boolean(owned);
   }

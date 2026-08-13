@@ -14,6 +14,7 @@ export const users = sqliteTable("users", {
   kind: text("kind", { enum: ["traveler", "corporate", "partner", "staff"] }).notNull().default("traveler"),
   role: text("role", { enum: ["traveler", "corporate_requester", "corporate_approver", "partner", "agent", "finance", "content", "admin", "owner"] }).notNull().default("traveler"),
   status: text("status", { enum: ["active", "invited", "suspended"] }).notNull().default("active"),
+  authVersion: integer("auth_version").notNull().default(1),
   platformUserId: text("platform_user_id"),
   ...timestamps,
 }, (table) => [
@@ -75,7 +76,7 @@ export const memberships = sqliteTable("memberships", {
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
 }, (table) => [
   uniqueIndex("idx_memberships_org_user").on(table.organizationId, table.userId),
-  index("idx_memberships_user").on(table.userId),
+  uniqueIndex("idx_memberships_user").on(table.userId),
 ]);
 
 export const travelerProfiles = sqliteTable("traveler_profiles", {
@@ -147,6 +148,8 @@ export const tripRequests = sqliteTable("trip_requests", {
   index("idx_trip_requests_user_status").on(table.userId, table.status),
   index("idx_trip_requests_org_status").on(table.organizationId, table.status),
   index("idx_trip_requests_pipeline").on(table.status, table.createdAt),
+  index("idx_trip_requests_user_created").on(table.userId, table.createdAt, table.id),
+  index("idx_trip_requests_org_created").on(table.organizationId, table.createdAt, table.id),
 ]);
 
 export const tripRequestTravelers = sqliteTable("trip_request_travelers", {
@@ -197,7 +200,7 @@ export const quotes = sqliteTable("quotes", {
   sentAt: integer("sent_at", { mode: "timestamp_ms" }),
   approvedAt: integer("approved_at", { mode: "timestamp_ms" }),
   ...timestamps,
-}, (table) => [uniqueIndex("idx_quotes_number").on(table.quoteNumber), uniqueIndex("idx_quotes_request_current").on(table.tripRequestId).where(sql`${table.current} = 1`), index("idx_quotes_request").on(table.tripRequestId), index("idx_quotes_user_status").on(table.userId, table.status)]);
+}, (table) => [uniqueIndex("idx_quotes_number").on(table.quoteNumber), uniqueIndex("idx_quotes_request_current").on(table.tripRequestId).where(sql`${table.current} = 1`), index("idx_quotes_request").on(table.tripRequestId), index("idx_quotes_user_status").on(table.userId, table.status), index("idx_quotes_user_current_created").on(table.userId, table.current, table.createdAt, table.id), index("idx_quotes_org_current_created").on(table.organizationId, table.current, table.createdAt, table.id)]);
 
 export const quoteVersions = sqliteTable("quote_versions", {
   id: text("id").primaryKey(),
@@ -243,7 +246,7 @@ export const bookings = sqliteTable("bookings", {
   travelerCount: integer("traveler_count").notNull().default(1),
   itineraryPdfKey: text("itinerary_pdf_key"),
   ...timestamps,
-}, (table) => [uniqueIndex("idx_bookings_number").on(table.bookingNumber), uniqueIndex("idx_bookings_quote").on(table.quoteId), uniqueIndex("idx_bookings_request").on(table.tripRequestId), index("idx_bookings_user_status").on(table.userId, table.status), index("idx_bookings_org_status").on(table.organizationId, table.status)]);
+}, (table) => [uniqueIndex("idx_bookings_number").on(table.bookingNumber), uniqueIndex("idx_bookings_quote").on(table.quoteId), uniqueIndex("idx_bookings_request").on(table.tripRequestId), index("idx_bookings_user_status").on(table.userId, table.status), index("idx_bookings_org_status").on(table.organizationId, table.status), index("idx_bookings_user_created").on(table.userId, table.createdAt, table.id), index("idx_bookings_org_created").on(table.organizationId, table.createdAt, table.id), index("idx_bookings_status_created").on(table.status, table.createdAt, table.id)]);
 
 export const itineraryDays = sqliteTable("itinerary_days", {
   id: text("id").primaryKey(),
@@ -305,6 +308,9 @@ export const invoices = sqliteTable("invoices", {
   index("idx_invoices_booking").on(table.bookingId),
   index("idx_invoices_status_due").on(table.status, table.dueDate),
   index("idx_invoices_user_status").on(table.userId, table.status),
+  index("idx_invoices_user_created").on(table.userId, table.createdAt, table.id),
+  index("idx_invoices_org_created").on(table.organizationId, table.createdAt, table.id),
+  index("idx_invoices_status_created").on(table.status, table.createdAt, table.id),
 ]);
 
 export const invoiceItems = sqliteTable("invoice_items", {
@@ -350,7 +356,7 @@ export const supportTickets = sqliteTable("support_tickets", {
   priority: text("priority", { enum: ["low", "normal", "high", "urgent"] }).notNull().default("normal"),
   assignedAgentId: text("assigned_agent_id").references(() => users.id, { onDelete: "set null" }),
   ...timestamps,
-}, (table) => [uniqueIndex("idx_support_tickets_number").on(table.ticketNumber), index("idx_support_tickets_status_priority").on(table.status, table.priority), index("idx_support_tickets_user").on(table.userId)]);
+}, (table) => [uniqueIndex("idx_support_tickets_number").on(table.ticketNumber), index("idx_support_tickets_status_priority").on(table.status, table.priority), index("idx_support_tickets_user").on(table.userId), index("idx_support_user_updated").on(table.userId, table.updatedAt, table.id), index("idx_support_org_updated").on(table.organizationId, table.updatedAt, table.id)]);
 
 export const messages = sqliteTable("messages", {
   id: text("id").primaryKey(),
@@ -507,3 +513,62 @@ export const settings = sqliteTable("settings", {
   updatedBy: text("updated_by").references(() => users.id, { onDelete: "set null" }),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
+
+// Additive control-plane tables for the v2 operational-shard rollout. The
+// legacy operational tables above intentionally remain in core during the
+// compatibility and rollback window.
+export const tenantRoutes = sqliteTable("tenant_routes", {
+  id: text("id").primaryKey(),
+  tenantKey: text("tenant_key").notNull(),
+  tenantType: text("tenant_type", { enum: ["organization", "user", "anonymous"] }).notNull(),
+  organizationId: text("organization_id").references(() => organizations.id, { onDelete: "restrict" }),
+  userId: text("user_id").references(() => users.id, { onDelete: "restrict" }),
+  shard: integer("shard").notNull(),
+  readMode: text("read_mode", { enum: ["core", "shadow", "shard"] }).notNull().default("core"),
+  mirrorWrites: integer("mirror_writes", { mode: "boolean" }).notNull().default(false),
+  assignedAt: integer("assigned_at", { mode: "timestamp_ms" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+}, (table) => [
+  uniqueIndex("idx_tenant_routes_key").on(table.tenantKey),
+  index("idx_tenant_routes_shard_mode").on(table.shard, table.readMode),
+  index("idx_tenant_routes_org").on(table.organizationId),
+  index("idx_tenant_routes_user").on(table.userId),
+]);
+
+export const coreChangeEvents = sqliteTable("core_change_events", {
+  id: text("id").primaryKey(),
+  tenantKey: text("tenant_key").notNull(),
+  entityType: text("entity_type").notNull(),
+  entityId: text("entity_id").notNull(),
+  operation: text("operation", { enum: ["upsert", "delete"] }).notNull(),
+  rowVersion: integer("row_version").notNull(),
+  payloadJson: text("payload_json").notNull(),
+  status: text("status", { enum: ["pending", "published", "applied", "dead"] }).notNull().default("pending"),
+  attempts: integer("attempts").notNull().default(0),
+  availableAt: integer("available_at", { mode: "timestamp_ms" }).notNull(),
+  publishedAt: integer("published_at", { mode: "timestamp_ms" }),
+  lastError: text("last_error"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+}, (table) => [
+  uniqueIndex("idx_core_change_entity_version").on(table.entityType, table.entityId, table.rowVersion),
+  index("idx_core_change_pending").on(table.status, table.availableAt),
+  index("idx_core_change_tenant").on(table.tenantKey, table.createdAt),
+]);
+
+export const migrationState = sqliteTable("migration_state", {
+  key: text("key").primaryKey(),
+  valueJson: text("value_json").notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+});
+
+export const contentSearchTerms = sqliteTable("content_search_terms", {
+  id: text("id").primaryKey(),
+  entityType: text("entity_type", { enum: ["destination", "package", "content"] }).notNull(),
+  entityId: text("entity_id").notNull(),
+  term: text("term").notNull(),
+  weight: integer("weight").notNull().default(1),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+}, (table) => [
+  uniqueIndex("idx_content_search_entity_term").on(table.entityType, table.entityId, table.term),
+  index("idx_content_search_term_weight").on(table.term, table.weight),
+]);

@@ -4,7 +4,7 @@ export const allRoles = [...internalRoles, ...externalRoles] as const;
 
 export type Role = (typeof allRoles)[number];
 export type Currency = "KES" | "USD";
-export type Actor = { id: string; email: string; fullName: string | null; role: Role; organizationId?: string | null; source: "magic_link" | "platform" };
+export type Actor = { id: string; email: string; fullName: string | null; role: Role; organizationId?: string | null; source: "magic_link" | "platform"; authVersion?: number };
 export type Money = { amountMinor: number; currency: Currency };
 export type TripRequestStatus = "submitted" | "qualified" | "quoting" | "quoted" | "approved" | "declined" | "converted" | "closed";
 export type QuoteStatus = "draft" | "sent" | "viewed" | "approved" | "declined" | "expired" | "superseded";

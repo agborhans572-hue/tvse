@@ -2,6 +2,7 @@ import { getD1 } from "../db";
 import { createId, nextDocumentNumber } from "./ids";
 import type { Actor, BookingStatus, Currency, Role, TripRequestStatus } from "./travel";
 import { assertTransition, calculateLineTotal, can, isInternalRole } from "./travel";
+import { canAccessResource, reportScopeForRole } from "./authorization";
 import type { ContentInput } from "./validation";
 
 type MarketingContext = { sourcePath?: string; destinationSlug?: string; packageSlug?: string; utmSource?: string; utmMedium?: string; utmCampaign?: string };
@@ -19,14 +20,10 @@ export async function createLead(input: ContactInput, actor?: Actor | null) {
 
 export async function createTripRequest(input: TripInput, actor?: Actor | null) {
   const db = getD1(); const now = Date.now(); const id = createId("trp"); const requestNumber = await nextDocumentNumber("REQ");
-  let userId = actor?.id ?? null;
-  if (!userId) {
-    const existing = await db.prepare("SELECT id FROM users WHERE email = ?").bind(input.contactEmail.toLowerCase()).first<{ id: string }>();
-    if (existing) userId = existing.id;
-  }
+  const userId = actor?.id ?? null;
   if (input.organizationId && !actor) throw new Error("Authentication is required to submit for an organization");
-  if (input.organizationId && actor && !isInternalRole(actor.role) && input.organizationId !== actor.organizationId) throw new Error("This organization does not belong to you");
-  const organizationId = isInternalRole(actor?.role as Role) ? input.organizationId ?? actor?.organizationId ?? null : actor?.organizationId ?? null;
+  if (input.organizationId && actor && !can(actor.role, "manage_travel") && input.organizationId !== actor.organizationId) throw new Error("This organization does not belong to you");
+  const organizationId = actor && can(actor.role, "manage_travel") ? input.organizationId ?? actor.organizationId ?? null : actor?.organizationId ?? null;
   let approverId: string | null = null; let approvalStatus = "not_required";
   if (input.kind === "corporate" && organizationId) {
     const org = await db.prepare("SELECT approver_user_id FROM organizations WHERE id = ?").bind(organizationId).first<{ approver_user_id: string | null }>();
@@ -41,13 +38,14 @@ export async function createTripRequest(input: TripInput, actor?: Actor | null) 
 
 export async function listTripRequests(actor: Actor, limit = 50) {
   const db = getD1();
-  if (isInternalRole(actor.role)) return can(actor.role,"manage_travel") ? (await db.prepare("SELECT * FROM trip_requests ORDER BY created_at DESC LIMIT ?").bind(limit).all<Record<string, unknown>>()).results : [];
-  if (actor.organizationId && ["corporate_requester", "corporate_approver"].includes(actor.role)) return (await db.prepare("SELECT * FROM trip_requests WHERE organization_id = ? ORDER BY created_at DESC LIMIT ?").bind(actor.organizationId, limit).all<Record<string, unknown>>()).results;
-  return (await db.prepare("SELECT * FROM trip_requests WHERE user_id = ? OR contact_email = ? ORDER BY created_at DESC LIMIT ?").bind(actor.id, actor.email, limit).all<Record<string, unknown>>()).results;
+  const columns="id,request_number,user_id,organization_id,kind,status,approval_status,assigned_agent_id,contact_name,origin,destination,departure_date,return_date,traveler_count,budget_minor,currency,created_at,updated_at";
+  if (isInternalRole(actor.role)) return can(actor.role,"manage_travel") ? (await db.prepare(`SELECT ${columns} FROM trip_requests ORDER BY created_at DESC LIMIT ?`).bind(limit).all<Record<string, unknown>>()).results : [];
+  if (actor.organizationId && ["corporate_requester", "corporate_approver"].includes(actor.role)) return (await db.prepare(`SELECT ${columns} FROM trip_requests WHERE organization_id = ? ORDER BY created_at DESC LIMIT ?`).bind(actor.organizationId, limit).all<Record<string, unknown>>()).results;
+  return (await db.prepare(`SELECT ${columns} FROM trip_requests WHERE user_id = ? OR contact_email = ? ORDER BY created_at DESC LIMIT ?`).bind(actor.id, actor.email, limit).all<Record<string, unknown>>()).results;
 }
 
 export async function decideTripApproval(id: string, actor: Actor, decision: "approved" | "declined", comment = "") {
-  if (actor.role !== "corporate_approver" && !isInternalRole(actor.role)) throw new Error("Only an assigned approver can decide this request");
+  if (actor.role !== "corporate_approver" && !can(actor.role, "manage_travel")) throw new Error("Only an assigned approver or travel manager can decide this request");
   const db = getD1(); const now = Date.now();
   const approval = await db.prepare("SELECT id, approver_id, status FROM approvals WHERE entity_type = 'trip_request' AND entity_id = ? ORDER BY created_at DESC LIMIT 1").bind(id).first<{ id: string; approver_id: string; status: string }>();
   if (!approval || approval.status !== "pending" || (actor.role === "corporate_approver" && approval.approver_id !== actor.id)) throw new Error("Approval is not available");
@@ -114,17 +112,19 @@ export async function sendQuote(id: string, actor: Actor) {
 }
 
 export async function listQuotes(actor: Actor, limit = 50) {
-  const db = getD1(); const select = `SELECT q.*, qv.total_minor, qv.pdf_key, tr.destination, tr.departure_date, tr.return_date, tr.contact_name, tr.contact_email FROM quotes q JOIN quote_versions qv ON qv.quote_id = q.id AND qv.version = q.current_version JOIN trip_requests tr ON tr.id = q.trip_request_id`;
+  const db = getD1(); const select = `SELECT q.id,q.quote_number,q.trip_request_id,q.user_id,q.organization_id,q.status,q.current_version,q.currency,q.expires_at,q.sent_at,q.approved_at,q.created_at,q.updated_at,qv.total_minor,qv.pdf_key,tr.destination,tr.departure_date,tr.return_date,tr.contact_name FROM quotes q JOIN quote_versions qv ON qv.quote_id = q.id AND qv.version = q.current_version JOIN trip_requests tr ON tr.id = q.trip_request_id`;
   if (isInternalRole(actor.role)) return can(actor.role,"manage_travel") || can(actor.role,"manage_finance") ? (await db.prepare(`${select} WHERE q.current=1 ORDER BY q.created_at DESC LIMIT ?`).bind(limit).all<Record<string, unknown>>()).results : [];
   if (actor.organizationId && actor.role.startsWith("corporate_")) return (await db.prepare(`${select} WHERE q.current=1 AND q.organization_id = ? ORDER BY q.created_at DESC LIMIT ?`).bind(actor.organizationId, limit).all<Record<string, unknown>>()).results;
   return (await db.prepare(`${select} WHERE q.current=1 AND (q.user_id = ? OR tr.contact_email = ?) ORDER BY q.created_at DESC LIMIT ?`).bind(actor.id, actor.email, limit).all<Record<string, unknown>>()).results;
 }
 
 export async function decideQuote(id: string, actor: Actor, decision: "approved" | "declined", comment = "") {
-  const db = getD1(); const row = await db.prepare("SELECT q.*, tr.contact_email FROM quotes q JOIN trip_requests tr ON tr.id = q.trip_request_id WHERE q.id = ? AND q.current=1").bind(id).first<Record<string, unknown>>();
+  const db = getD1(); const row = await db.prepare("SELECT q.*, tr.contact_email, tr.approver_id FROM quotes q JOIN trip_requests tr ON tr.id = q.trip_request_id WHERE q.id = ? AND q.current=1").bind(id).first<Record<string, unknown>>();
   if (!row || !["sent", "viewed"].includes(String(row.status))) throw new Error("This quote cannot be decided");
-  if (!isInternalRole(actor.role) && row.user_id !== actor.id && row.contact_email !== actor.email && row.organization_id !== actor.organizationId) throw new Error("This quote does not belong to you");
-  if (!isInternalRole(actor.role) && row.organization_id && actor.role !== "corporate_approver") throw new Error("A corporate approver must decide this quote");
+  if (isInternalRole(actor.role) && !can(actor.role, "manage_travel")) throw new Error("Travel operations permission required");
+  if (actor.role === "traveler" && (row.organization_id || (row.user_id !== actor.id && row.contact_email !== actor.email))) throw new Error("This quote does not belong to you");
+  if (actor.role === "corporate_approver" && (row.organization_id !== actor.organizationId || row.approver_id !== actor.id)) throw new Error("Only the assigned corporate approver can decide this quote");
+  if (!isInternalRole(actor.role) && !["traveler", "corporate_approver"].includes(actor.role)) throw new Error("You do not have permission to decide this quote");
   const now = Date.now();
   const results = await db.batch([
     db.prepare("UPDATE quotes SET status = ?, approved_at = ?, updated_at = ? WHERE id = ? AND status IN ('sent','viewed') AND current=1").bind(decision, decision === "approved" ? now : null, now, id),
@@ -155,7 +155,7 @@ export async function createBookingFromQuote(quoteId: string, actor: Actor) {
 
 export async function listBookings(actor: Actor, limit = 50) {
   const db = getD1();
-  const select = "SELECT b.*, q.quote_number FROM bookings b JOIN quotes q ON q.id = b.quote_id";
+  const select = "SELECT b.id,b.booking_number,b.quote_id,b.trip_request_id,b.user_id,b.organization_id,b.status,b.destination,b.departure_date,b.return_date,b.traveler_count,b.itinerary_pdf_key,b.created_at,b.updated_at,q.quote_number FROM bookings b JOIN quotes q ON q.id = b.quote_id";
   if (isInternalRole(actor.role)) return can(actor.role,"manage_travel") || can(actor.role,"manage_finance") ? (await db.prepare(`${select} ORDER BY b.created_at DESC LIMIT ?`).bind(limit).all<Record<string, unknown>>()).results : [];
   if (actor.organizationId && actor.role.startsWith("corporate_")) return (await db.prepare(`${select} WHERE b.organization_id = ? ORDER BY b.created_at DESC LIMIT ?`).bind(actor.organizationId, limit).all<Record<string, unknown>>()).results;
   return (await db.prepare(`${select} WHERE b.user_id = ? ORDER BY b.created_at DESC LIMIT ?`).bind(actor.id, limit).all<Record<string, unknown>>()).results;
@@ -181,7 +181,7 @@ export async function createInvoice(bookingId: string, dueDate: string, taxMinor
 }
 
 export async function listInvoices(actor: Actor, limit = 50) {
-  const db = getD1(); const select = "SELECT i.*, b.booking_number, b.destination FROM invoices i JOIN bookings b ON b.id = i.booking_id";
+  const db = getD1(); const select = "SELECT i.id,i.invoice_number,i.booking_id,i.user_id,i.organization_id,i.status,i.currency,i.total_minor,i.paid_minor,i.due_minor,i.issue_date,i.due_date,i.pdf_key,i.created_at,i.updated_at,b.booking_number,b.destination FROM invoices i JOIN bookings b ON b.id = i.booking_id";
   if (isInternalRole(actor.role)) return can(actor.role,"manage_finance") ? (await db.prepare(`${select} ORDER BY i.created_at DESC LIMIT ?`).bind(limit).all<Record<string, unknown>>()).results : [];
   if (actor.organizationId && actor.role.startsWith("corporate_")) return (await db.prepare(`${select} WHERE i.organization_id = ? ORDER BY i.created_at DESC LIMIT ?`).bind(actor.organizationId, limit).all<Record<string, unknown>>()).results;
   return (await db.prepare(`${select} WHERE i.user_id = ? ORDER BY i.created_at DESC LIMIT ?`).bind(actor.id, limit).all<Record<string, unknown>>()).results;
@@ -212,6 +212,7 @@ export async function recordPayment(invoiceId: string, input: { amountMinor: num
 }
 
 export async function createSupportTicket(input: { bookingId?: string; subject: string; priority: string; message: string }, actor: Actor) {
+  if (!canAccessResource(actor.role,"support")) throw new Error("Support access required");
   const db = getD1(); const id = createId("tkt"); const ticketNumber = await nextDocumentNumber("TKT"); const now = Date.now();
   if (input.bookingId && !isInternalRole(actor.role)) {
     const owned = await db.prepare("SELECT id FROM bookings WHERE id=? AND (user_id=? OR organization_id=?)").bind(input.bookingId, actor.id, actor.organizationId ?? "").first();
@@ -226,12 +227,13 @@ export async function createSupportTicket(input: { bookingId?: string; subject: 
 }
 
 export async function listSupportTickets(actor: Actor, limit = 50) {
-  const db = getD1(); const select = "SELECT t.*, (SELECT body FROM messages WHERE ticket_id = t.id AND internal = 0 ORDER BY created_at DESC LIMIT 1) AS latest_message FROM support_tickets t";
+  const db = getD1(); const select = "SELECT t.id,t.ticket_number,t.user_id,t.organization_id,t.booking_id,t.subject,t.status,t.priority,t.assigned_agent_id,t.created_at,t.updated_at,(SELECT substr(body,1,180) FROM messages WHERE ticket_id = t.id AND internal = 0 ORDER BY created_at DESC LIMIT 1) AS latest_message FROM support_tickets t";
   if (isInternalRole(actor.role)) return can(actor.role,"manage_travel") ? (await db.prepare(`${select} ORDER BY t.updated_at DESC LIMIT ?`).bind(limit).all<Record<string, unknown>>()).results : [];
   return (await db.prepare(`${select} WHERE t.user_id = ? OR t.organization_id = ? ORDER BY t.updated_at DESC LIMIT ?`).bind(actor.id, actor.organizationId ?? "", limit).all<Record<string, unknown>>()).results;
 }
 
 async function assertTicketAccess(id: string, actor: Actor) {
+  if (!canAccessResource(actor.role, "support")) throw new Error("Support access required");
   if (isInternalRole(actor.role) && !can(actor.role,"manage_travel")) throw new Error("Traveler support permission required");
   const row = await getD1().prepare("SELECT * FROM support_tickets WHERE id=?").bind(id).first<Record<string, unknown>>();
   if (!row) throw new Error("Support request not found");
@@ -278,16 +280,17 @@ export async function updateSupportTicket(id: string, input: { status?: string; 
 
 export async function listApprovals(actor: Actor) {
   const db = getD1();
-  if (actor.role === "corporate_approver") return (await db.prepare(`SELECT a.*, tr.request_number, tr.destination, tr.departure_date, tr.return_date, tr.budget_minor, tr.currency FROM approvals a JOIN trip_requests tr ON tr.id = a.entity_id WHERE a.entity_type = 'trip_request' AND a.approver_id = ? ORDER BY a.created_at DESC`).bind(actor.id).all<Record<string, unknown>>()).results;
-  if (isInternalRole(actor.role)) return can(actor.role,"manage_travel") ? (await db.prepare("SELECT * FROM approvals ORDER BY created_at DESC LIMIT 100").all<Record<string, unknown>>()).results : [];
+  if (actor.role === "corporate_approver") return (await db.prepare(`SELECT a.id,a.entity_type,a.entity_id,a.approver_id,a.status,a.comment,a.decided_at,a.created_at,tr.request_number,tr.destination,tr.departure_date,tr.return_date,tr.budget_minor,tr.currency FROM approvals a JOIN trip_requests tr ON tr.id = a.entity_id WHERE a.entity_type = 'trip_request' AND a.approver_id = ? ORDER BY a.created_at DESC`).bind(actor.id).all<Record<string, unknown>>()).results;
+  if (isInternalRole(actor.role)) return can(actor.role,"manage_travel") ? (await db.prepare("SELECT id,entity_type,entity_id,approver_id,status,comment,decided_at,created_at FROM approvals ORDER BY created_at DESC LIMIT 100").all<Record<string, unknown>>()).results : [];
   return [];
 }
 
 export async function listPartnerAssignments(actor: Actor) {
   if (actor.role !== "partner" && !isInternalRole(actor.role)) return [];
   const db = getD1();
-  if (isInternalRole(actor.role)) return can(actor.role,"manage_travel") ? (await db.prepare(`SELECT sa.*, b.booking_number, b.destination, s.name AS supplier_name FROM service_assignments sa JOIN bookings b ON b.id = sa.booking_id JOIN suppliers s ON s.id = sa.supplier_id ORDER BY sa.created_at DESC LIMIT 100`).all<Record<string, unknown>>()).results : [];
-  return (await db.prepare(`SELECT sa.*, b.booking_number, b.destination, s.name AS supplier_name FROM service_assignments sa JOIN bookings b ON b.id = sa.booking_id JOIN suppliers s ON s.id = sa.supplier_id JOIN memberships m ON m.organization_id = s.organization_id WHERE m.user_id = ? ORDER BY sa.created_at DESC`).bind(actor.id).all<Record<string, unknown>>()).results;
+  const columns="sa.id,sa.booking_id,sa.supplier_id,sa.status,sa.service_type,sa.traveler_summary,sa.partner_note,sa.confirmed_at,sa.created_at,sa.updated_at,b.booking_number,b.destination,s.name AS supplier_name";
+  if (isInternalRole(actor.role)) return can(actor.role,"manage_travel") ? (await db.prepare(`SELECT ${columns} FROM service_assignments sa JOIN bookings b ON b.id = sa.booking_id JOIN suppliers s ON s.id = sa.supplier_id ORDER BY sa.created_at DESC LIMIT 100`).all<Record<string, unknown>>()).results : [];
+  return (await db.prepare(`SELECT ${columns} FROM service_assignments sa JOIN bookings b ON b.id = sa.booking_id JOIN suppliers s ON s.id = sa.supplier_id JOIN memberships m ON m.organization_id = s.organization_id WHERE m.user_id = ? ORDER BY sa.created_at DESC`).bind(actor.id).all<Record<string, unknown>>()).results;
 }
 
 export async function updatePartnerAssignment(id: string, status: "confirmed" | "declined" | "completed", note: string, actor: Actor) {
@@ -357,7 +360,7 @@ export async function createPartnerAssignment(input: { bookingId: string; suppli
   await audit(actor, "service_assignment", id, "assigned", { bookingId: input.bookingId, supplierId: input.supplierId }); return { id, status: "assigned" as const };
 }
 
-export async function inviteUser(input: { email: string; fullName: string; role: Role; organizationId?: string }, actor: Actor) {
+export async function inviteUser(input: { email: string; fullName: string; role: Role; organizationId?: string; replaceAccess?: boolean }, actor: Actor) {
   if (!can(actor.role, "manage_users")) throw new Error("User administration permission required");
   const db = getD1(); const now = Date.now(); const normalized = input.email.toLowerCase();
   if (isInternalRole(input.role) && input.organizationId) throw new Error("Staff accounts cannot be assigned to a client organization");
@@ -367,24 +370,43 @@ export async function inviteUser(input: { email: string; fullName: string; role:
     const organization=await db.prepare("SELECT id FROM organizations WHERE id=? AND type=?").bind(input.organizationId,expectedType).first();
     if (!organization) throw new Error(`A ${expectedType} organization is required for this role`);
   }
-  const row = await db.prepare("SELECT id FROM users WHERE email = ?").bind(normalized).first<{ id: string }>(); const id = row?.id ?? createId("usr");
+  const row = await db.prepare(`SELECT u.id,u.role,u.status,u.kind,m.organization_id
+    FROM users u LEFT JOIN memberships m ON m.user_id=u.id WHERE u.email=? LIMIT 1`).bind(normalized).first<{ id: string; role: Role; status: string; kind: string; organization_id: string | null }>(); const id = row?.id ?? createId("usr");
   const kind = isInternalRole(input.role) ? "staff" : input.role === "partner" ? "partner" : input.role.startsWith("corporate_") ? "corporate" : "traveler";
-  if (row) await db.prepare("UPDATE users SET full_name = ?, kind = ?, role = ?, status = 'invited', updated_at = ? WHERE id = ?").bind(input.fullName, kind, input.role, now, id).run();
-  else await db.prepare("INSERT INTO users (id, email, full_name, kind, role, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'invited', ?, ?)").bind(id, normalized, input.fullName, kind, input.role, now, now).run();
-  if (input.organizationId) {
-    await db.prepare("INSERT OR IGNORE INTO memberships (id, organization_id, user_id, role, created_at) VALUES (?, ?, ?, ?, ?)")
-      .bind(createId("mem"), input.organizationId, id, input.role === "partner" ? "partner_user" : input.role === "corporate_approver" ? "approver" : "requester", now).run();
-    if (input.role === "corporate_approver") await db.prepare("UPDATE organizations SET approver_user_id = ?, updated_at = ? WHERE id = ? AND type = 'corporate'").bind(id, now, input.organizationId).run();
+  if (row?.role === "owner" && row.status === "active") throw new Error("Active owners cannot be changed through invitations");
+  const accessMatches = !!row && row.role === input.role && (row.organization_id ?? null) === (input.organizationId ?? null);
+  if (row && !accessMatches && !input.replaceAccess) throw new Error("This user already has different access. Confirm an explicit access replacement");
+  if (row && accessMatches) {
+    await db.prepare("UPDATE users SET full_name=?,updated_at=? WHERE id=?").bind(input.fullName,now,id).run();
+    return { id, email: normalized, role: input.role, idempotent: true };
   }
+  const membershipRole=input.role === "partner" ? "partner_user" : input.role === "corporate_approver" ? "approver" : "requester";
+  if (row) {
+    const statements = [
+      db.prepare("UPDATE organizations SET approver_user_id=NULL,updated_at=? WHERE approver_user_id=?").bind(now,id),
+      db.prepare("DELETE FROM memberships WHERE user_id=?").bind(id),
+      db.prepare("DELETE FROM sessions WHERE user_id=?").bind(id),
+      db.prepare("UPDATE users SET full_name=?,kind=?,role=?,status='invited',auth_version=auth_version+1,updated_at=? WHERE id=?").bind(input.fullName,kind,input.role,now,id),
+      ...(input.organizationId ? [db.prepare("INSERT INTO memberships (id,organization_id,user_id,role,created_at) VALUES (?,?,?,?,?)").bind(createId("mem"),input.organizationId,id,membershipRole,now)] : []),
+    ];
+    await db.batch(statements);
+  } else {
+    await db.batch([
+      db.prepare("INSERT INTO users (id, email, full_name, kind, role, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'invited', ?, ?)").bind(id, normalized, input.fullName, kind, input.role, now, now),
+      ...(input.organizationId ? [db.prepare("INSERT INTO memberships (id,organization_id,user_id,role,created_at) VALUES (?,?,?,?,?)").bind(createId("mem"),input.organizationId,id,membershipRole,now)] : []),
+    ]);
+  }
+  if (input.organizationId && input.role === "corporate_approver") await db.prepare("UPDATE organizations SET approver_user_id = ?, updated_at = ? WHERE id = ? AND type = 'corporate'").bind(id, now, input.organizationId).run();
   await audit(actor, "user", id, "invited", { role: input.role }); return { id, email: normalized, role: input.role };
 }
 
 export async function listLeads(actor: Actor, status?: string) {
   if (!can(actor.role, "manage_travel")) throw new Error("Travel operations permission required");
   const db = getD1();
+  const columns="l.id,l.user_id,l.type,l.status,l.name,l.email,l.phone,l.company,substr(l.message,1,240) AS message,l.source,l.assigned_agent_id,l.converted_trip_request_id,l.created_at,l.updated_at,u.full_name AS assigned_agent_name";
   const query = status
-    ? db.prepare("SELECT l.*, u.full_name AS assigned_agent_name FROM leads l LEFT JOIN users u ON u.id=l.assigned_agent_id WHERE l.status=? ORDER BY l.created_at DESC LIMIT 200").bind(status)
-    : db.prepare("SELECT l.*, u.full_name AS assigned_agent_name FROM leads l LEFT JOIN users u ON u.id=l.assigned_agent_id ORDER BY l.created_at DESC LIMIT 200");
+    ? db.prepare(`SELECT ${columns} FROM leads l LEFT JOIN users u ON u.id=l.assigned_agent_id WHERE l.status=? ORDER BY l.created_at DESC LIMIT 200`).bind(status)
+    : db.prepare(`SELECT ${columns} FROM leads l LEFT JOIN users u ON u.id=l.assigned_agent_id ORDER BY l.created_at DESC LIMIT 200`);
   return (await query.all<Record<string, unknown>>()).results;
 }
 
@@ -414,22 +436,76 @@ export async function convertLead(id: string, input: { kind: "personal" | "corpo
 }
 
 export async function listUsers(actor: Actor) { if (!can(actor.role, "manage_users")) return []; return (await getD1().prepare("SELECT id, email, full_name, kind, role, status, created_at FROM users ORDER BY created_at DESC LIMIT 200").all<Record<string, unknown>>()).results; }
-export async function listOrganizations(actor: Actor) { if (!isInternalRole(actor.role) || !(can(actor.role,"manage_users")||can(actor.role,"manage_travel")||can(actor.role,"manage_finance"))) return []; return (await getD1().prepare("SELECT * FROM organizations ORDER BY created_at DESC LIMIT 100").all<Record<string, unknown>>()).results; }
-export async function listSuppliers(actor: Actor) { if (actor.role !== "partner" && !can(actor.role,"manage_travel")) return []; return (await getD1().prepare("SELECT * FROM suppliers ORDER BY name").all<Record<string, unknown>>()).results; }
-export async function listNotifications(actor: Actor) { if (!['owner','admin'].includes(actor.role)) return []; return (await getD1().prepare("SELECT * FROM notifications ORDER BY created_at DESC LIMIT 100").all<Record<string, unknown>>()).results; }
-export async function listActivity(actor: Actor) { if (!can(actor.role, "view_audit")) return []; return (await getD1().prepare("SELECT a.*, u.email AS actor_email FROM activity_logs a LEFT JOIN users u ON u.id = a.actor_id ORDER BY a.created_at DESC LIMIT 200").all<Record<string, unknown>>()).results; }
+export async function listOrganizations(actor: Actor) { if (!isInternalRole(actor.role) || !(can(actor.role,"manage_users")||can(actor.role,"manage_travel")||can(actor.role,"manage_finance"))) return []; return (await getD1().prepare("SELECT id,name,slug,type,status,billing_email,default_currency,approver_user_id,created_at,updated_at FROM organizations ORDER BY created_at DESC LIMIT 100").all<Record<string, unknown>>()).results; }
+export async function listSuppliers(actor: Actor) { if (actor.role !== "partner" && !can(actor.role,"manage_travel")) return []; const sql="SELECT id,organization_id,name,category,email,phone,country,status,created_at,updated_at FROM suppliers";return actor.role==="partner"?(await getD1().prepare(`${sql} WHERE organization_id=? ORDER BY name LIMIT 200`).bind(actor.organizationId).all<Record<string,unknown>>()).results:(await getD1().prepare(`${sql} ORDER BY name LIMIT 200`).all<Record<string, unknown>>()).results; }
+export async function listNotifications(actor: Actor) { if (!['owner','admin'].includes(actor.role)) return []; return (await getD1().prepare("SELECT id,user_id,channel,template,destination,status,provider_id,attempts,last_error,sent_at,created_at FROM notifications ORDER BY created_at DESC LIMIT 100").all<Record<string, unknown>>()).results; }
+export async function listActivity(actor: Actor) { if (!can(actor.role, "view_audit")) return []; return (await getD1().prepare("SELECT a.id,a.actor_id,a.organization_id,a.entity_type,a.entity_id,a.action,a.created_at,u.email AS actor_email FROM activity_logs a LEFT JOIN users u ON u.id = a.actor_id ORDER BY a.created_at DESC LIMIT 200").all<Record<string, unknown>>()).results; }
 
 export async function organizationWorkspace(actor: Actor) {
   if (!actor.organizationId) return { organization: null, members: [] as Record<string, unknown>[] };
   const db = getD1();
-  const organization = await db.prepare("SELECT * FROM organizations WHERE id=?").bind(actor.organizationId).first<Record<string, unknown>>();
+  const organization = await db.prepare("SELECT id,name,slug,type,status,billing_email,default_currency,approver_user_id,created_at,updated_at FROM organizations WHERE id=?").bind(actor.organizationId).first<Record<string, unknown>>();
   const members = (await db.prepare(`SELECT u.id,u.email,u.full_name,u.role,u.status,m.role AS membership_role FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organization_id=? ORDER BY u.full_name,u.email`).bind(actor.organizationId).all<Record<string, unknown>>()).results;
   return { organization, members };
 }
 
 export async function dashboardData(actor: Actor) {
-  const [requests, quotes, bookings, invoices, tickets, approvals, assignments] = await Promise.all([listTripRequests(actor, 12), listQuotes(actor, 12), listBookings(actor, 12), listInvoices(actor, 12), listSupportTickets(actor, 12), listApprovals(actor), listPartnerAssignments(actor)]);
-  return { requests, quotes, bookings, invoices, tickets, approvals, assignments };
+  if (actor.role === "partner") {
+    const [assignments, tickets, bookings] = await Promise.all([listPartnerAssignments(actor), listSupportTickets(actor, 12), listBookings(actor, 12)]);
+    return { requests: [], quotes: [], bookings, invoices: [], tickets, approvals: [], assignments };
+  }
+  const [requests, bookings, financials] = await Promise.all([listTripRequests(actor, 12), listBookings(actor, 12), listOverviewFinancials(actor)]);
+  return {
+    requests,
+    quotes: financials.filter((row) => row.record_type === "quote"),
+    bookings,
+    invoices: financials.filter((row) => row.record_type === "invoice"),
+    tickets: [], approvals: [], assignments: [],
+  };
+}
+
+async function listOverviewFinancials(actor: Actor) {
+  const db = getD1(); const bindings: unknown[] = [];
+  let quoteWhere = "0=1"; let invoiceWhere = "0=1";
+  if (isInternalRole(actor.role)) {
+    quoteWhere = can(actor.role,"manage_travel") || can(actor.role,"manage_finance") ? "1=1" : "0=1";
+    invoiceWhere = can(actor.role,"manage_finance") ? "1=1" : "0=1";
+  } else if (actor.organizationId && actor.role.startsWith("corporate_")) {
+    quoteWhere = "q.organization_id = ?"; bindings.push(actor.organizationId);
+    invoiceWhere = "i.organization_id = ?"; bindings.push(actor.organizationId);
+  } else {
+    quoteWhere = "(q.user_id = ? OR tr.contact_email = ?)"; bindings.push(actor.id, actor.email);
+    invoiceWhere = "i.user_id = ?"; bindings.push(actor.id);
+  }
+  return (await db.prepare(`
+    SELECT 'quote' AS record_type, q.id, q.status, q.created_at FROM quotes q JOIN trip_requests tr ON tr.id=q.trip_request_id WHERE q.current=1 AND ${quoteWhere}
+    UNION ALL
+    SELECT 'invoice' AS record_type, i.id, i.status, i.created_at FROM invoices i WHERE i.current=1 AND ${invoiceWhere}
+    ORDER BY created_at DESC LIMIT 48
+  `).bind(...bindings).all<Record<string, unknown>>()).results;
+}
+
+export async function workspaceReports(actor: Actor) {
+  if (reportScopeForRole(actor.role) === "none") throw new Error("Report access denied");
+  const db = getD1();
+  const requestFilter = isInternalRole(actor.role) ? (can(actor.role,"manage_travel") ? { sql: "1=1", args: [] as unknown[] } : { sql: "0=1", args: [] as unknown[] }) : actor.organizationId && actor.role.startsWith("corporate_") ? { sql: "organization_id=?", args: [actor.organizationId] } : { sql: "(user_id=? OR contact_email=?)", args: [actor.id, actor.email] };
+  const invoiceFilter = isInternalRole(actor.role) ? (can(actor.role,"manage_finance") ? { sql: "1=1", args: [] as unknown[] } : { sql: "0=1", args: [] as unknown[] }) : actor.organizationId && actor.role.startsWith("corporate_") ? { sql: "organization_id=?", args: [actor.organizationId] } : { sql: "user_id=?", args: [actor.id] };
+  const supportFilter = isInternalRole(actor.role) ? (can(actor.role,"manage_travel") ? { sql: "1=1", args: [] as unknown[] } : { sql: "0=1", args: [] as unknown[] }) : { sql: "(user_id=? OR organization_id=?)", args: [actor.id, actor.organizationId ?? ""] };
+  const [pipeline, finance, totals] = await db.batch([
+    db.prepare(`SELECT status, COUNT(*) AS count FROM trip_requests WHERE ${requestFilter.sql} GROUP BY status ORDER BY status`).bind(...requestFilter.args),
+    db.prepare(`SELECT currency, COUNT(*) AS invoice_count, COALESCE(SUM(total_minor),0) AS total_minor, COALESCE(SUM(paid_minor),0) AS paid_minor, COALESCE(SUM(due_minor),0) AS due_minor FROM invoices WHERE current=1 AND ${invoiceFilter.sql} GROUP BY currency ORDER BY currency`).bind(...invoiceFilter.args),
+    db.prepare(`SELECT (SELECT COUNT(*) FROM bookings WHERE ${invoiceFilter.sql}) AS bookings, (SELECT COUNT(*) FROM support_tickets WHERE ${supportFilter.sql} AND status NOT IN ('resolved','closed')) AS open_support`).bind(...invoiceFilter.args, ...supportFilter.args),
+  ]);
+  return { pipeline: pipeline.results, finance: finance.results, totals: totals.results[0] ?? { bookings: 0, open_support: 0 } };
+}
+
+export async function partnerOperationsDirectories(actor: Actor) {
+  if (!can(actor.role,"manage_travel")) return { organizations: [] as Record<string, unknown>[], suppliers: [] as Record<string, unknown>[] };
+  const row = await getD1().prepare(`SELECT
+    (SELECT COALESCE(json_group_array(json_object('id',id,'name',name,'type',type,'status',status,'billing_email',billing_email)),json('[]')) FROM organizations ORDER BY created_at DESC LIMIT 100) AS organizations_json,
+    (SELECT COALESCE(json_group_array(json_object('id',id,'organization_id',organization_id,'name',name,'category',category,'email',email,'phone',phone,'country',country,'status',status)),json('[]')) FROM suppliers ORDER BY name LIMIT 200) AS suppliers_json
+  `).first<{ organizations_json: string; suppliers_json: string }>();
+  return { organizations: JSON.parse(row?.organizations_json ?? "[]") as Record<string, unknown>[], suppliers: JSON.parse(row?.suppliers_json ?? "[]") as Record<string, unknown>[] };
 }
 
 export async function upsertContent(input: ContentInput, actor: Actor) {
@@ -446,17 +522,33 @@ export async function upsertContent(input: ContentInput, actor: Actor) {
     await db.prepare(`INSERT INTO content_entries (id, type, slug, title, excerpt, body, image_path, status, seo_title, seo_description, author_id, published_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET slug=excluded.slug,title=excluded.title,excerpt=excluded.excerpt,body=excluded.body,image_path=excluded.image_path,status=excluded.status,seo_title=excluded.seo_title,seo_description=excluded.seo_description,published_at=excluded.published_at,updated_at=excluded.updated_at`)
       .bind(id, type, input.slug, input.title, input.summary, input.description, input.imagePath, input.status, input.seoTitle || null, input.seoDescription || null, actor.id, input.status === "published" ? now : null, now, now).run();
   }
+  const entityType = kind === "destination" ? "destination" : kind === "package" ? "package" : "content";
+  const terms = [...new Set(`${input.slug} ${input.title} ${input.summary} ${kind === "destination" ? `${input.country ?? ""} ${input.region ?? ""}` : ""}`.toLowerCase().replace(/[^a-z0-9\s-]/gu," ").replaceAll("-"," ").split(/\s+/u).filter((term)=>term.length>=2))].slice(0,50);
+  await db.batch([
+    db.prepare("DELETE FROM content_search_terms WHERE entity_type=? AND entity_id=?").bind(entityType,id),
+    ...terms.map((term)=>db.prepare("INSERT INTO content_search_terms (id,entity_type,entity_id,term,weight,updated_at) VALUES (?,?,?,?,?,?)").bind(createId("search"),entityType,id,term,term.length>=5?2:1,now)),
+  ]);
   await audit(actor, kind, id, "saved", { status: input.status }); return { id, kind, status: input.status };
 }
 
 export async function listContent(actor?: Actor | null) {
   const db = getD1(); const statusClause = actor && can(actor.role, "manage_content") ? "" : " WHERE status = 'published'";
   const [destinationRows, packageRows, entries] = await Promise.all([
-    db.prepare(`SELECT id, 'destination' AS kind, slug, name AS title, summary, description, country, region, status, image_path, seo_title, seo_description, updated_at FROM destinations${statusClause} ORDER BY updated_at DESC`).all<Record<string, unknown>>(),
-    db.prepare(`SELECT id, 'package' AS kind, slug, title, summary, description, duration_days, from_price_minor, currency, destination_id, status, image_path, seo_title, seo_description, updated_at FROM packages${statusClause} ORDER BY updated_at DESC`).all<Record<string, unknown>>(),
-    db.prepare(`SELECT id, type AS kind, slug, title, excerpt AS summary, body AS description, status, image_path, seo_title, seo_description, updated_at FROM content_entries${statusClause} ORDER BY updated_at DESC`).all<Record<string, unknown>>(),
+    db.prepare(`SELECT id, 'destination' AS kind, slug, name AS title, summary, country, region, status, image_path, seo_title, seo_description, updated_at FROM destinations${statusClause} ORDER BY updated_at DESC`).all<Record<string, unknown>>(),
+    db.prepare(`SELECT id, 'package' AS kind, slug, title, summary, duration_days, from_price_minor, currency, destination_id, status, image_path, seo_title, seo_description, updated_at FROM packages${statusClause} ORDER BY updated_at DESC`).all<Record<string, unknown>>(),
+    db.prepare(`SELECT id, type AS kind, slug, title, excerpt AS summary, status, image_path, seo_title, seo_description, updated_at FROM content_entries${statusClause} ORDER BY updated_at DESC`).all<Record<string, unknown>>(),
   ]);
   return [...destinationRows.results, ...packageRows.results, ...entries.results];
+}
+
+export async function getContentItem(id: string, actor: Actor) {
+  if (!can(actor.role,"manage_content")) throw new Error("Content permission required");
+  const row=await getD1().prepare(`SELECT * FROM (
+    SELECT id,'destination' AS kind,slug,name AS title,summary,description,country,region,NULL AS duration_days,NULL AS from_price_minor,NULL AS currency,status,image_path,seo_title,seo_description,updated_at FROM destinations
+    UNION ALL SELECT id,'package',slug,title,summary,description,NULL,NULL,duration_days,from_price_minor,currency,status,image_path,seo_title,seo_description,updated_at FROM packages
+    UNION ALL SELECT id,type,slug,title,excerpt,body,NULL,NULL,NULL,NULL,NULL,status,image_path,seo_title,seo_description,updated_at FROM content_entries
+  ) WHERE id=? LIMIT 1`).bind(id).first<Record<string,unknown>>();
+  if(!row)throw new Error("Content not found");return row;
 }
 
 async function audit(actor: Actor | null, entityType: string, entityId: string, action: string, metadata: Record<string, unknown>) {

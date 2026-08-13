@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
+import { TawkLiveChat } from "./TawkLiveChat";
 import { usePublicContactLinks } from "./usePublicContactLinks";
 
 const navGroups = [
@@ -53,7 +53,6 @@ const navGroups = [
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const reduceMotion = useReducedMotion();
 
   const closeMenus = () => {
     setMenuOpen(false);
@@ -63,20 +62,16 @@ export function SiteHeader() {
   return (
     <header className="site-header shell">
       <Link className="logo brand-lockup" href="/" aria-label="TVSE Travel Agency Ltd home" onClick={closeMenus}>
-        <motion.span
-          className="brand-lockup-image"
-          whileHover={reduceMotion ? undefined : { scale: 1.08, rotateX: -7, rotateY: 10, y: -2 }}
-          transition={{ type: "spring", stiffness: 260, damping: 18 }}
-        >
+        <span className="brand-lockup-image">
           <Image
             src="/tvse-header-logo.png"
             alt=""
             fill
-            unoptimized
+
             priority
             sizes="(max-width: 560px) 74px, (max-width: 820px) 84px, (max-width: 1060px) 105px, 132px"
           />
-        </motion.span>
+        </span>
       </Link>
 
       <nav className={menuOpen ? "main-nav is-open" : "main-nav"} aria-label="Primary navigation">
@@ -122,7 +117,6 @@ export function SiteHeader() {
 }
 
 export function SiteFooter() {
-  const reduceMotion = useReducedMotion();
   const contactLinks = usePublicContactLinks();
 
   return (
@@ -135,13 +129,9 @@ export function SiteFooter() {
       <div className="footer-columns shell">
         <div className="footer-about">
           <Link className="logo brand-lockup footer-logo" href="/" aria-label="TVSE Travel Agency Ltd home">
-            <motion.span
-              className="brand-lockup-image footer-brand-lockup-image"
-              whileHover={reduceMotion ? undefined : { scale: 1.08, rotateX: -7, rotateY: 10, y: -2 }}
-              transition={{ type: "spring", stiffness: 260, damping: 18 }}
-            >
-              <Image src="/tvse-travel-globe-logo.png" alt="" fill unoptimized sizes="(max-width: 560px) 110px, 120px" />
-            </motion.span>
+            <span className="brand-lockup-image footer-brand-lockup-image">
+              <Image src="/tvse-travel-globe-logo.png" alt="" fill sizes="(max-width: 560px) 110px, 120px" />
+            </span>
           </Link>
           {(contactLinks.linkedin || contactLinks.instagram || contactLinks.facebook) && <div className="socials" aria-label="Social media">{contactLinks.linkedin&&<a href={contactLinks.linkedin} rel="noreferrer" target="_blank">in</a>}{contactLinks.instagram&&<a href={contactLinks.instagram} rel="noreferrer" target="_blank">ig</a>}{contactLinks.facebook&&<a href={contactLinks.facebook} rel="noreferrer" target="_blank">f</a>}</div>}
         </div>
@@ -181,16 +171,16 @@ export function SiteFooter() {
         </div>
         <div className="footer-member-grid">
           <div className="footer-member-logo member-kata">
-            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations-transparent.png" alt="Kenya Association of Travel Agents (KATA)" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
+            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations-transparent.png" alt="Kenya Association of Travel Agents (KATA)" width={2821} height={1042} sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
           </div>
           <div className="footer-member-logo member-iata">
-            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations-transparent.png" alt="International Air Transport Association (IATA)" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
+            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations-transparent.png" alt="International Air Transport Association (IATA)" width={2821} height={1042} sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
           </div>
           <div className="footer-member-logo member-kato">
-            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations-transparent.png" alt="Kenya Association of Tour Operators (KATO)" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
+            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations-transparent.png" alt="Kenya Association of Tour Operators (KATO)" width={2821} height={1042} sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
           </div>
           <div className="footer-member-logo member-kws">
-            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations-transparent.png" alt="Kenya Wildlife Service" width={2821} height={1042} unoptimized sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
+            <Image className="footer-member-logo-sheet" src="/tvse-member-organizations-transparent.png" alt="Kenya Wildlife Service" width={2821} height={1042} sizes="(max-width: 520px) 42vw, (max-width: 820px) 45vw, 260px" />
           </div>
         </div>
       </section>
@@ -199,6 +189,7 @@ export function SiteFooter() {
         <div><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link><a href="#top">Back to top ↑</a></div>
       </div>
       <div className="footer-rings" aria-hidden="true"><i /><i /><i /><i /></div>
+      <TawkLiveChat />
     </footer>
   );
 }

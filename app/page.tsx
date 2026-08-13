@@ -1,8 +1,5 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
 import { SiteFooter, SiteHeader } from "./components/SiteChrome";
 
 const services = [
@@ -104,7 +101,7 @@ function ServiceMoment({ moment }: { moment: (typeof serviceMoments)[number] | u
         {moment.items.map((service, index) => (
           <article className="service-feature-card" key={service.title}>
             <div className="service-feature-image">
-              <Image src={service.image} alt="" fill unoptimized sizes="(max-width: 820px) 100vw, 50vw" />
+              <Image src={service.image} alt="" fill sizes="(max-width: 820px) 100vw, 50vw" />
             </div>
             <div className="service-feature-copy">
               <span className="service-index">0{moment.start + index}</span>
@@ -122,8 +119,6 @@ function ServiceMoment({ moment }: { moment: (typeof serviceMoments)[number] | u
 }
 
 export default function Home() {
-  const reduceMotion = useReducedMotion();
-
   return (
     <main id="top">
       <SiteHeader />
@@ -141,32 +136,10 @@ export default function Home() {
           </div>
         </div>
 
-        <motion.div
-          className="motion-plane hero-plane"
-          aria-hidden="true"
-          initial={false}
-          animate={
-            reduceMotion
-              ? { x: "76vw", y: -120, rotate: 5, opacity: 0.72 }
-              : {
-                  x: ["-14vw", "28vw", "72vw", "108vw"],
-                  y: [120, 35, -50, -190],
-                  rotate: [-16, -8, 2, 13],
-                  scale: [0.72, 1, 1.12, 0.88],
-                  opacity: [0, 1, 1, 0],
-                }
-          }
-          transition={{
-            duration: 7.2,
-            times: [0, 0.44, 0.86, 1],
-            ease: [0.45, 0, 0.2, 1],
-            repeat: reduceMotion ? 0 : Infinity,
-            repeatDelay: 2.1,
-          }}
-        >
+        <div className="motion-plane hero-plane" aria-hidden="true">
           <span className="flight-trail" />
           <span className="plane-glyph">✈</span>
-        </motion.div>
+        </div>
       </section>
 
       <section className="trust-band" aria-labelledby="airline-marquee-title">
@@ -192,7 +165,7 @@ export default function Home() {
                       src={airline.logo}
                       alt={copy === 0 ? `${airline.name} logo` : ""}
                       fill
-                      unoptimized
+
                       sizes="190px"
                     />
                   </span>
@@ -251,34 +224,14 @@ export default function Home() {
         </div>
         <div className="platform-art" aria-hidden="true">
           <i /><i /><i /><i />
-          <motion.div
-            className="platform-plane"
-            initial={{ x: -90, y: 150, rotate: -18, opacity: 0 }}
-            whileInView={
-              reduceMotion
-                ? { x: 235, y: -25, rotate: 8, opacity: 0.7 }
-                : {
-                    x: [-90, 70, 350],
-                    y: [150, 25, -115],
-                    rotate: [-18, -2, 18],
-                    scale: [0.78, 1.15, 0.9],
-                    opacity: [0, 1, 0],
-                  }
-            }
-            viewport={{ amount: 0.25 }}
-            transition={{ duration: 5.6, ease: "easeInOut", repeat: reduceMotion ? 0 : Infinity, repeatDelay: 1.2 }}
-          >
+          <div className="platform-plane">
             <span className="flight-trail light-trail" />
             <span className="plane-glyph">✈</span>
-          </motion.div>
+          </div>
           <div className="route-line">
             <b>NAIROBI</b>
             <span className="route-track" />
-            <motion.span
-              className="route-plane"
-              animate={reduceMotion ? { x: "300%", rotate: 7 } : { x: ["0%", "650%", "0%"], rotate: [7, -5, 7] }}
-              transition={{ duration: 4.4, ease: "easeInOut", repeat: reduceMotion ? 0 : Infinity }}
-            >✈</motion.span>
+            <span className="route-plane">✈</span>
             <b>ANYWHERE</b>
           </div>
         </div>
@@ -295,7 +248,7 @@ export default function Home() {
         <div className="story-grid">
           {stories.map((story) => (
             <article className="story-card" key={story.title}>
-              <div className="story-image"><Image src={story.image} alt="" fill unoptimized loading="eager" sizes="(max-width: 760px) 100vw, 33vw" /></div>
+              <div className="story-image"><Image src={story.image} alt="" fill sizes="(max-width: 760px) 100vw, 33vw" /></div>
               <div className="story-copy">
                 <span>{story.kicker}</span>
                 <h3>{story.title}</h3>
@@ -319,27 +272,10 @@ export default function Home() {
           <Link href="/corporate"><span>04</span>Business travel <b>→</b></Link>
         </div>
         <div className="specialist-path" aria-hidden="true"><i /><i /><i /></div>
-        <motion.div
-          className="motion-plane specialist-plane"
-          aria-hidden="true"
-          initial={{ x: -210, y: 150, rotate: -25, opacity: 0 }}
-          whileInView={
-            reduceMotion
-              ? { x: 250, y: -145, rotate: 18, opacity: 0.72 }
-              : {
-                  x: [-210, -10, 185, 390],
-                  y: [150, 42, -72, -210],
-                  rotate: [-25, -9, 6, 24],
-                  scale: [0.78, 1, 1.15, 0.82],
-                  opacity: [0, 1, 1, 0],
-                }
-          }
-          viewport={{ amount: 0.28 }}
-          transition={{ duration: 5.9, times: [0, 0.42, 0.84, 1], ease: "easeInOut", repeat: reduceMotion ? 0 : Infinity, repeatDelay: 1.5 }}
-        >
+        <div className="motion-plane specialist-plane" aria-hidden="true">
           <span className="flight-trail green-trail" />
           <span className="plane-glyph">✈</span>
-        </motion.div>
+        </div>
       </section>
 
       <section className="numbers shell section">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 
 const geist = Geist({
@@ -30,7 +31,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const nonce=(await headers()).get("x-nonce")??undefined;
   const travelAgency = {
     "@context": "https://schema.org",
     "@type": "TravelAgency",
@@ -43,7 +45,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   };
   return (
     <html lang="en">
-      <body className={geist.variable}><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(travelAgency) }} />{children}</body>
+      <body className={geist.variable}><script nonce={nonce} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(travelAgency).replace(/</gu,"\\u003c") }} />{children}</body>
     </html>
   );
 }

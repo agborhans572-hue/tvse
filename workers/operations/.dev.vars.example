@@ -1,0 +1,15 @@
+TOKEN_CURRENT_SECRET=replace-with-at-least-32-random-characters
+TOKEN_PREVIOUS_KID=previous
+TOKEN_PREVIOUS_SECRET=replace-with-previous-key-during-rotation
+OPERATIONS_SERVICE_KID=current-service
+OPERATIONS_SERVICE_SECRET=replace-with-at-least-32-random-characters
+OPERATIONS_SERVICE_PREVIOUS_KID=previous-service
+OPERATIONS_SERVICE_PREVIOUS_SECRET=replace-with-previous-key-during-rotation
+CURSOR_SECRET=replace-with-at-least-32-random-characters
+UPLOAD_TOKEN_SECRET=replace-with-at-least-32-random-characters
+MIGRATION_ADMIN_TOKEN=replace-with-a-random-administration-token
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=TVSE Travel Agency Ltd <journeys@tvsetravel.com>
+TURNSTILE_SECRET_KEY=
+TURNSTILE_EXPECTED_HOSTNAME=localhost
+ALLOW_INSECURE_LOCAL_DEV=true

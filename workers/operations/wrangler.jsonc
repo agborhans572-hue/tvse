@@ -1,0 +1,50 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "tvse-operations",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "vars": {
+    "ALLOWED_ORIGINS": "http://localhost:3000",
+    "TOKEN_CURRENT_KID": "current",
+    "ARCHIVE_RETENTION_DAYS": "2557",
+    "V2_FORCE_CORE_READS": "false"
+  },
+  "d1_databases": [
+    { "binding": "CORE_DB", "database_name": "tvse-core", "migrations_dir": "../../drizzle" },
+    { "binding": "OPS_0", "database_name": "tvse-ops-0", "migrations_dir": "migrations/shards" },
+    { "binding": "OPS_1", "database_name": "tvse-ops-1", "migrations_dir": "migrations/shards" },
+    { "binding": "OPS_2", "database_name": "tvse-ops-2", "migrations_dir": "migrations/shards" },
+    { "binding": "OPS_3", "database_name": "tvse-ops-3", "migrations_dir": "migrations/shards" }
+  ],
+  "r2_buckets": [
+    { "binding": "UPLOADS", "bucket_name": "tvse-uploads" }
+  ],
+  "kv_namespaces": [
+    { "binding": "ROUTING_CACHE" }
+  ],
+  "queues": {
+    "producers": [
+      { "binding": "JOBS", "queue": "tvse-jobs" },
+      { "binding": "JOBS_DLQ", "queue": "tvse-jobs-dlq" }
+    ],
+    "consumers": [
+      { "queue": "tvse-jobs", "max_batch_size": 10, "max_batch_timeout": 2, "max_retries": 8, "dead_letter_queue": "tvse-jobs-dlq", "max_concurrency": 20 }
+    ]
+  },
+  "durable_objects": {
+    "bindings": [
+      { "name": "RATE_LIMITER", "class_name": "RateLimiter" },
+      { "name": "DOCUMENT_NUMBERS", "class_name": "DocumentNumberAllocator" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["RateLimiter", "DocumentNumberAllocator"] }
+  ],
+  "triggers": {
+    "crons": ["* * * * *", "17 2 * * *"]
+  },
+  "limits": { "cpu_ms": 30000 }
+}

@@ -22,7 +22,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ sl
   return <main id="top" className="destination-detail-page">
     <SiteHeader />
     <section className="destination-detail-hero">
-      <Image src={item.image} alt={`${item.name}, ${item.country}`} fill unoptimized priority sizes="100vw" />
+      <Image src={item.image} alt={`${item.name}, ${item.country}`} fill priority sizes="100vw" />
       <div className="destination-detail-shade" />
       <div className="shell"><p>{item.region} · {item.country}</p><h1>{item.name}</h1><span>{item.summary}</span></div>
     </section>

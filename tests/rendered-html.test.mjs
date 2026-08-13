@@ -17,32 +17,40 @@ test("server-renders the TVSE travel experience", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+  const csp=response.headers.get("content-security-policy")??"";
+  for(const directive of ["nonce-","frame-ancestors 'none'","base-uri 'self'","object-src 'none'"])assert.match(csp,new RegExp(directive.replace(/[.*+?^${}()|[\]\\]/gu,"\\$&"),"u"));
+  assert.equal(response.headers.get("x-frame-options"),"DENY");
+  assert.equal(response.headers.get("x-content-type-options"),"nosniff");
+  assert.match(response.headers.get("strict-transport-security")??"",/max-age=63072000/u);
 
   const html = await response.text();
   assert.match(html, /<title>TVSE Travel \| Remarkable journeys, made personal<\/title>/i);
   assert.match(html, /Remarkable journeys/);
   assert.match(html, /Made personal/);
-  assert.match(html, /hero-device-stage/);
-  assert.match(html, /hero-phone-transparent\.png/);
+  assert.match(html, /hero-copy/);
+  assert.match(html, /hero-plane/);
   assert.doesNotMatch(html, /hero-rings/);
   assert.match(html, /Featured airlines/);
   assert.match(html, /Kenya Airways/);
   assert.match(html, /airlines\/kenya-airways\.svg/);
   assert.match(html, /airlines\/emirates\.svg/);
   assert.match(html, /airline-marquee-track/);
-  for (const service of ["Accommodation", "Delivery services", "Ticketing", "Car rental services", "Safaris", "Airport transfers"]) {
+  for (const service of ["Accommodation", "Ticketing", "Safaris", "Airport transfers"]) {
     assert.match(html, new RegExp(service, "i"));
   }
   assert.match(html, /Stay beautifully\. Fly confidently\./);
-  assert.match(html, /Every connection, handled door to door\./);
-  assert.match(html, /Take the road\. Follow the wild\./);
+  assert.match(html, /Land smoothly\. Follow the wild\./);
   assert.doesNotMatch(html, /service-grid/);
   assert.doesNotMatch(html, /destinations in our current catalog/);
   assert.doesNotMatch(html, /Your island itinerary is ready|FEATURED ESCAPE/);
   assert.match(html, /Maasai Mara/);
   assert.match(html, /Let(?:&#x27;|')s go somewhere/);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|Your site is taking shape/i);
+  assert.match(html,/<script[^>]+nonce=/u);
+  assert.doesNotMatch(html,/https:\/\/embed\.tawk\.to/u);
 });
+
+test("security headers also cover API and denied document responses",async()=>{for(const path of ["/api/public-config","/api/documents/quote/missing"]){const response=await render(path);assert.match(response.headers.get("content-security-policy")??"",/frame-ancestors 'none'/u);assert.equal(response.headers.get("x-content-type-options"),"nosniff");assert.equal(response.headers.get("referrer-policy"),"strict-origin-when-cross-origin");}});
 
 test("server-renders every header destination", async () => {
   const destinations = [
